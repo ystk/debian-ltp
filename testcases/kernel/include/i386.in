@@ -138,6 +138,7 @@ personality 136
 afs_syscall 137
 setfsuid 138
 setfsgid 139
+llseek 140
 getdents 141
 flock 143
 msync 144

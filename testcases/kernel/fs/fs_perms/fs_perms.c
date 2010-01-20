@@ -47,13 +47,12 @@ static int testsetup(mode_t mode, int cuserId, int cgroupId)
 	int ret;
 	char cmd_str[256];
 
-	sprintf(cmd_str, "cp %s/testx test.file", getcwd(NULL, 0));
 	tst_tmpdir();
 
 	ret = unlink("test.file");
 	if (ret && errno != ENOENT)
 		goto done;
-	ret = system(cmd_str);
+	ret = system("cp $LTPROOT/testcases/bin/testx test.file");
 	if (ret)
 		goto done;
 	ret = chmod("test.file", mode);
@@ -65,7 +64,7 @@ static int testsetup(mode_t mode, int cuserId, int cgroupId)
 	return ret;
 }
 
-void cleanup(void)
+static void cleanup()
 {
 	tst_rmdir();
 	tst_exit();
@@ -73,18 +72,13 @@ void cleanup(void)
 
 static int testfperm(int userId, int groupId, char *fperm)
 {
+	int ret;
 	/* SET CURRENT USER/GROUP PERMISSIONS */
 	if (setegid(groupId)) {
 		tst_brkm(TBROK, cleanup, "could not setegid to %d: %s", groupId, strerror(errno));
-		seteuid(0);
-		setegid(0);
-		return -1;
 	}
 	if (seteuid(userId)) {
 		tst_brkm(TBROK, cleanup, "could not seteuid to %d: %s", userId, strerror(errno));
-		seteuid(0);
-		setegid(0);
-		return -1;
 	}
 
 	switch (tolower(fperm[0])) {
@@ -95,24 +89,23 @@ static int testfperm(int userId, int groupId, char *fperm)
 			exit(1);
 		}
 		wait(&status);
-		seteuid(0);
-		setegid(0);
-		return WEXITSTATUS(status);
+		ret=WEXITSTATUS(status);
+		goto done;
 	}
 	default: {
 		FILE *testfile;
 		if ((testfile = fopen("test.file", fperm))) {
 			fclose(testfile);
-			seteuid(0);
-			setegid(0);
-			return 0;
+			ret=0;
 		} else {
-			seteuid(0);
-			setegid(0);
-			return 1;
+			ret=1;
 		}
 	}
 	}
+ done:
+	seteuid(0);
+	setegid(0);
+	return ret;
 }
 
 int main(int argc, char *argv[])
@@ -144,7 +137,6 @@ int main(int argc, char *argv[])
 	}
 
 	result = testfperm(userId, groupId, fperm);
-	unlink("test.file");
 	tst_resm(exresult == result ? TPASS : TFAIL, "%c a %03o file owned by (%d/%d) as user/group(%d/%d)",
 		fperm[0], mode, cuserId, cgroupId, userId, groupId);
 	cleanup();

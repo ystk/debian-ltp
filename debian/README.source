@@ -1,0 +1,95 @@
+                            README.source
+                            =============
+
+This file contains some remarks about building, upgrading and
+customizing the ltp package. Specifically, it contains information
+about nonstandard methods used while building the package.
+
+                         Getting the package
+                         -------------------
+
+The preferred way of getting the package is cloning its git
+repository, especially if you want to make changes or update to a
+newer upstream version. To do it, execute
+
+  $ git clone git://repo.or.cz/ltp-debian.git ltp
+
+which will download the repository to directory ltp.
+
+                         Building the package
+                         --------------------
+
+Building the package is easy, just execute
+
+  $ git buildpackage
+
+and it should go fine.
+
+                       Adding files to packages
+                       ------------------------
+
+Since many files from the upstream package are not packaged, you may
+want to add some files to the packages. Some difficulties you may
+encounter:
+
+ 1) Could be your files are not built by default. In that case, you
+    will need to change the Makefile(s) in the directory(s) of your
+    files to include them in the build. Often, that means adding a
+    directory in the list of subdirectories in parent directory's
+    Makefile.
+
+ 2) The list of files installed in the packages is determined during
+    the build just before installing. That means, you have to build
+    the package to get full *.install files for the binary
+    packages. For details, see the file debian/generate-lists. You
+    will have to edit that file to add files. The procedure
+    automatically determines if the packages conflict by including
+    some file twice in different packages. Also, you'll get a list of
+    files installed by upstream Makefiles in testcases/bin/ not
+    included in any of the binary packages, which you should
+    review. Note this is by no means sufficient, because quite often,
+    files needed to run some testcases (eg. support scripts) are not
+    installed anywhere.
+
+                 Upgrading to newer upstream version
+                 -----------------------------------
+
+You should really use a git repository for that. The easiest procedure
+is running uscan, while in a clean checkout of the master branch:
+
+  $ uscan --no-symlink
+
+Be sure to add the --no-symlink parameter, as it would result in
+errors while building the package later. This is because the
+.orig.tar.gz is repackaged, and this wouldn't happen if it was
+symlinked to upstream's tarball.
+
+You should find yourself in the dfsg_clean branch after doing that,
+maybe with a few merge conflicts. You should then run
+
+  $ debian/dfsg-cleanup
+
+and then
+
+  $ git commit                       [if there were merge conflicts]
+  $ git commit --amend               [if there were none]
+
+The conflicts should be solved by the dfsg-cleanup script.
+
+Next, switch to the mastre branch and merge the new version:
+
+  $ git checkout master
+  $ git merge dfsg_clean
+
+You can get some conflicts in this stage. Good luck dealing with them.
+
+Next, you need to update the copyright file and the rest of the
+package. To do this, you need to review the upstream diff, figure out
+what's new and changed, and update what needs to be updated. That
+means adding newly emerged files to debian/copyright, adding new files
+to the binary packages (as described above).
+
+
+That's all for now
+
+  Jiří Paleček

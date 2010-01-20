@@ -252,10 +252,10 @@ main(int argc, char *argv[])
 	total++;
 
 	if (failed) {
-		tst_resm(TINFO, "%d/%d testblocks failed",
+		tst_resm(TFAIL, "%d/%d testblocks failed",
 			fail_count, total);
 	} else {
-		tst_resm(TINFO, "%d testblocks %d iterations completed",
+		tst_resm(TPASS, "%d testblocks %d iterations completed",
 			total, iter);
 	}
 	cleanup();

@@ -1,0 +1,8 @@
+usr/lib/ltp/testcases/bin/stress_floppy
+usr/lib/ltp/testcases/bin/stress_cd
+usr/lib/ltp/testcases/bin/dd_file
+usr/lib/ltp/testcases/bin/dumpdir
+usr/lib/ltp/runtest/dio
+usr/lib/ltp/runtest/io
+usr/lib/ltp/runtest/io_floppy
+usr/lib/ltp/runtest/io_cd

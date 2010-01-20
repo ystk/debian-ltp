@@ -128,14 +128,7 @@ else
     LTPTMP=$TMPBASE
 fi
 
-# 'LTPBIN' where actual test cases (test binaries) reside
-# 'LTPROOT' where the actual LTP test suite resides
-if [ -z "$LTPBIN" -a -z "$LTPROOT" ]
-then
-    LTPBIN=./
-else
-	LTPBIN=$LTPROOT/testcases/bin/
-fi
+LTPBIN=$LTPTOOLS
 
 # set return code RC variable to 0, it will be set with a non-zero return code 
 # in case of error. Set TFAILCNT to 0, increment if there occures a failure.
@@ -167,7 +160,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised ASCII file correctly"
-        rm -f $LTPTMP/test_file.txt
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
                 "file: Failed to recognise ASCII file correctlyi. Reason:"
@@ -178,6 +170,8 @@ else
                 "file: failed to recognize ASCII file correctly\t\t"
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
+
+rm -f $LTPTMP/test_file.txt 
 
 # TEST #2
 # Test if file command can recognize bash shell script
@@ -203,7 +197,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised bash shell script correctly"
-        rm -f $LTPTMP/bash_script.sh
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
             "file: Failed to recognise bash shell script. Reason"
@@ -213,6 +206,8 @@ else
     $LTPBIN/tst_resm TFAIL "file: Failed to recognize bash shell script"
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
+
+rm -f $LTPTMP/bash_script.sh 
 
 # TEST #3
 # Test if file command can recognize korn shell script
@@ -238,7 +233,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: recognised korn shell script"
-        rm -f $LTPTMP/ksh_script.sh
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
             "file: Failed to recognise korn shell script. Reason:"
@@ -249,6 +243,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/ksh_script.sh 
 
 # TEST #4
 # Test if file command can recognize C shell script
@@ -274,7 +269,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised C shell script correctly"
-        rm -f $LTPTMP/C_script.sh
     else
         $LTPBIN/tst_resm TFAIL $LTPTMP/file.out \
             "file: Failed to recognise C shell script correctly. Reason:"
@@ -285,6 +279,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/C_script.sh 
 
 # TEST #5
 # Test if file command can recognize C program text
@@ -312,7 +307,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised C program text correctly"
-        rm -f $LTPTMP/cprog.c
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
              "file: Failed to Recognize C program text correctly. Reason:"
@@ -324,6 +318,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/cprog.c 
 
 # TEST #6
 # Test if file command can recognize ELF binay executables
@@ -364,7 +359,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognized ELF binary executable"
-        rm -f $LTPTMP/cprog.c $LTPTMP/cprog
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
              "file: Failed to Recognize ELF binary executable. Reason:"
@@ -375,6 +369,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/cprog.c $LTPTMP/cprog 
 
 # TEST #7
 # Test if file command can recognize tar files
@@ -406,7 +401,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised tar files"
-        rm -f $LTPTMP/files.tar # save $LTPTMP/file[123] for next test case
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
              "file: Failed to Recognize tar files. Reason:"
@@ -417,6 +411,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/files.tar # save $LTPTMP/file[123] for next test case
 
 # TEST #8
 # Test if file command can tar zip files
@@ -448,8 +443,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised tar zip file"
-        rm -f $LTPTMP/files.tar.gz $LTPTMP/file1 $LTPTMP/file2 $LTPTMP/file3
-        rm -f $LTPTMP/file1.out
     else
         $LTPBIN/tst_brkm TBROK NULL \
                 "expected string: gzip compressed data, deflated,
@@ -464,6 +457,8 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
+rm -f $LTPTMP/files.tar.gz $LTPTMP/files.tar $LTPTMP/file1 $LTPTMP/file2 $LTPTMP/file3 \
+    $LTPTMP/file1.out 
 
 # TEST #9
 # Test if file command can recognize RPM files.
@@ -560,7 +555,6 @@ then
     if [ $? -eq 0 ]
     then
         $LTPBIN/tst_resm TPASS "file: Recognised RPM file correctly"
-        rm -f $LTPTMP/files.spec
     else
         $LTPBIN/tst_res TFAIL $LTPTMP/file.out \
              "file: Failed to Recognize RPM file. Reason:"
@@ -575,6 +569,7 @@ else
     $LTPBIN/tst_resm TCONF "rpm not installed"
 fi
 
+rm -f $LTPTMP/files.spec $bDIR/SRPMS/cprog-0.0.7-3.src.rpm $bDIR/SOURCES/cprog.c
 
 # TEST #10
 # Test if file command can recognize kernel file

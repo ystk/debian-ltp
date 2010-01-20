@@ -29,4 +29,19 @@ CLEAN_TARGETS		:= [rd]*sin [rd]sinh [rd]*cos [rd]cosh [rd]*tan [rd]*tan2		\
 
 LDLIBS			+= -lm
 
+INSTALL_TARGETS := [rd]*sinh [rd]*cosh [rd]*tanh
+
+MAKE_TARGETS := 
+
+INSTALL_MODE := 0644
+
+.INTERMEDIATE: $(patsubst $(abs_srcdir)/%.c,%,$(wildcard $(abs_srcdir)/gen*))
+
+float_reference: $(patsubst $(abs_srcdir)/%.c,%,$(wildcard $(abs_srcdir)/gen*))
+	./geniperb .
+
+.PHONY: float_reference
+
+all: float_reference
+
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

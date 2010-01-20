@@ -127,6 +127,9 @@
 #define TRUE         1
 #define FALSE        0
 
+#undef tst_brk
+#undef tst_brkm
+
 /*
  * EXPAND_VAR_ARGS - Expand the variable portion (arg_fmt) of a result
  *                   message into the specified string.
@@ -711,9 +714,8 @@ void tst_brkloop(int ttype, char *fname, void (*func)(void), char *arg_fmt, ...)
 		ttype = TBROK;
 	}
 
-	/* Print the first result, if necessary. */
-	if (Tst_count < Tst_lpstart + Tst_lptotal)
-		tst_res(ttype, fname, "%s", tmesg);
+	/* Print the first result. */
+	tst_res(ttype, fname, "%s", tmesg);
 
 	/* Determine the number of results left to report. */
 	Tst_range = Tst_lptotal + Tst_lpstart - Tst_count;

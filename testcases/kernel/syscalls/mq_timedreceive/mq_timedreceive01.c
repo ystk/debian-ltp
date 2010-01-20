@@ -45,7 +45,7 @@
 /* History:     Porting from Crackerjack to LTP is done by                    */
 /*              Manas Kumar Nayak maknayak@in.ibm.com>                        */
 /******************************************************************************/
-#define _XOPEN_SOURCE 500
+#define _XOPEN_SOURCE 600
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,7 +60,7 @@
 #include <time.h>
 #include <signal.h>
 #include <limits.h>
-
+#include <mqueue.h>
 
 #include "../utils/include_j_h.h"
 #include "../utils/common_j_h.c"

@@ -21,6 +21,10 @@
 #   HISTORY     : see the cvs log
 #
 
+# debian is good enough
+
+exit 0
+
 # Prompt user if ids/groups should be created
 echo "Checking for required user/group ids"
 echo ""

@@ -275,11 +275,7 @@ void cleanup()
 	TEST_CLEANUP;
 
 	/* Remove temperory file */
-	if ((unlink(file_name)) == -1) {
-		tst_resm(TWARN, "Couldn't delete file, %s", file_name);
-	}
-	chdir("/tmp");
-	remove(cwd_parent);
+	tst_rmdir();
 
 	/* exit with return code appropriate for results */
 	tst_exit();

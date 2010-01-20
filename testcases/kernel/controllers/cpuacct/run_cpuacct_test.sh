@@ -112,7 +112,7 @@ per_cpu_usage ()
                 else
                      attrc=`expr $j + $attrc`
                 fi
-        done < "./tmp2"
+        done < "$TMP2"
 }
 
 #Function which verifies the cpu accounting of the Parent and the Child cgroups.
@@ -123,10 +123,10 @@ check_attr()
 	then
 		if [ "$2" == "cpuacct.stat" ]
 		then
-			attr1="`sed -n 1p tmp2`"
-			attr2="`sed -n 2p tmp2`"
-			attr3="`sed -n 3p tmp2`"
-			attr4="`sed -n 4p tmp2`"
+			attr1="`sed -n 1p $TMP2`"
+			attr2="`sed -n 2p $TMP2`"
+			attr3="`sed -n 3p $TMP2`"
+			attr4="`sed -n 4p $TMP2`"
 			echo
 			echo "$2 for Parent cgroup is $attr1 : $attr2"
 			echo "$2 for Child cgroup is $attr3 : $attr4"
@@ -155,8 +155,8 @@ check_attr()
                                 echo "TFAIL $mes:$2 FAILED"
                         fi
 		else
-			attr1="`sed -n 1p tmp2`"
-			attr2="`sed -n 2p tmp2`"
+			attr1="`sed -n 1p $TMP2`"
+			attr2="`sed -n 2p $TMP2`"
 
 			echo
 			echo "$2 for Parent cgroup is $attr1"
@@ -175,12 +175,12 @@ check_attr()
 
 		if [ "$2" == "cpuacct.stat" ]
 		then
-			attr0="`sed -n 1p tmp2 | cut -d" " -f2`"
-			attr1="`sed -n 2p tmp2 | cut -d" " -f2`"
-			attr2="`sed -n 3p tmp2 | cut -d" " -f2`"
-			attr3="`sed -n 4p tmp2 | cut -d" " -f2`"
-			attr4="`sed -n 5p tmp2 | cut -d" " -f2`"
-			attr5="`sed -n 6p tmp2 | cut -d" " -f2`"
+			attr0="`sed -n 1p $TMP2 | cut -d" " -f2`"
+			attr1="`sed -n 2p $TMP2 | cut -d" " -f2`"
+			attr2="`sed -n 3p $TMP2 | cut -d" " -f2`"
+			attr3="`sed -n 4p $TMP2 | cut -d" " -f2`"
+			attr4="`sed -n 5p $TMP2 | cut -d" " -f2`"
+			attr5="`sed -n 6p $TMP2 | cut -d" " -f2`"
 			attr_usr=`expr $attr2 + $attr4 `
 			attr_sys=`expr $attr3 + $attr5`
 			echo
@@ -217,9 +217,9 @@ check_attr()
 		        fi
 
 		else
-			attr0="`sed -n 1p tmp2`"
-			attr1="`sed -n 2p tmp2`"
-			attr2="`sed -n 3p tmp2`"
+			attr0="`sed -n 1p $TMP2`"
+			attr1="`sed -n 2p $TMP2`"
+			attr2="`sed -n 3p $TMP2`"
 			attr=`expr $attr1 + $attr2`
 			echo
 			echo "$2 for Parent cgroup : $attr0"
@@ -246,7 +246,7 @@ echo "TEST STARTED: Please avoid using system while this test executes";
 status=0
 case ${TEST_NUM} in
 	"1" )
-		ls $PWD/cpuacct_task01 &> /dev/null
+		ls $PWD/cpuacct_task01 > /dev/null 2>&1
 		if [ $? -ne 0 ]
 		then
 		        echo "TFAIL Task file cpuacct_task01.c not compiled"
@@ -280,7 +280,7 @@ case ${TEST_NUM} in
 		for i in cpuacct.usage cpuacct.usage_percpu cpuacct.stat
 		do
 			cat $cg_path/group_1/$i \
-			$cg_path/group_1/group_11/$i > tmp2
+			$cg_path/group_1/group_11/$i > $TMP2
 			check_attr $1 $i
 		if [ $RC -ne 0 ]
 		then
@@ -314,7 +314,7 @@ case ${TEST_NUM} in
                         exit -1
                 fi
 
-                ls $PWD/cpuacct_task01 &> /dev/null
+                ls $PWD/cpuacct_task01 > /dev/null 2>&1
                 if [ $? -ne 0 ]
                 then
                         echo "TFAIL Task file cpuacct_task01.c not compiled"
@@ -323,7 +323,7 @@ case ${TEST_NUM} in
 			task_kill 2> /dev/null
 		        exit -1
                 fi
-		for (( m=0 ; m<=$num_online_cpus ; m++ ))
+		for m in $(seq 0 $num_online_cpus)
 		do
 			nr_tasks
         	        echo $pid > $cg_path/group_1/group_11/tasks
@@ -352,7 +352,7 @@ case ${TEST_NUM} in
                 do
                         cat $cg_path/group_1/$i  \
 			$cg_path/group_1/group_11/$i \
-			$cg_path/group_1/group_12/$i >tmp2
+			$cg_path/group_1/group_12/$i >$TMP2
                         check_attr $1 $i
 		if [ $RC -ne 0 ]
                 then

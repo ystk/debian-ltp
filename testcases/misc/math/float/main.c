@@ -80,21 +80,6 @@ const double EPS=  0.1e-300;
 
 const int nb_func = NB_FUNC;
 
-int generate(char *datadir, char *bin_path)
-{
- char *cmdline;
- char *fmt = "cd %s; %s/%s %s";
- 
- cmdline = malloc (2 * strlen(bin_path) + strlen(datadir) + 
-		   strlen(GENERATOR) + strlen(fmt));
- if (cmdline == NULL)
-     return(1);
- sprintf(cmdline,fmt,datadir,bin_path,GENERATOR,bin_path);
- system(cmdline);
- free(cmdline);
- return(0);
-}
-
 int main(int argc, char *argv[])
 {
         int             opt = 0;
@@ -134,8 +119,7 @@ int main(int argc, char *argv[])
 
 	setbuf(stdout, (char *)0);
 	setbuf(stderr, (char *)0);
-	datadir[0] = '.';
-	datadir[1] = '\0';
+	strncpy(datadir, bin_path, sizeof(datadir));
 
 	if(argc != 1)
 	{
@@ -161,13 +145,6 @@ int main(int argc, char *argv[])
                 }
         }
 	}
-	pid=fork();
-        if ( pid == 0 ){                    /*Child*/
-		generate(datadir,bin_path);          
-		return(0);} 
-	else                                /*Parent*/
-		waitpid(pid,NULL,0);
-	SAFE_FREE(bin_path);
 
 	if(debug)
 		tst_resm(TINFO, "%s: will run for %d loops", argv[0], num_loops);

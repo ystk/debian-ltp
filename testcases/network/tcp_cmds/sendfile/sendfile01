@@ -38,6 +38,8 @@
 #
 #***********************************************************************
 
+PATH=$PATH:$LTPTOOLS
+
 #-----------------------------------------------------------------------
 #
 # FUNCTION:  exists
@@ -51,7 +53,8 @@ do_setup()
     TC=sendfile01
     RHOST=${RHOST:-`hostname`}
     TCdat=${TCdat:-$LTPROOT/testcases/bin/datafiles}
-    TCtmp=${TCtmp:-$LTPROOT/testcases/bin/$TC${EXEC_SUFFIX}$$}
+    TMPDIR=${TMPDIR:-/tmp}
+    TCtmp=${TCtmp:-$TMPDIR/$TC${EXEC_SUFFIX}$$}
     CLIENT="testsf_c${EXEC_SUFFIX}"
     SERVER="testsf_s${EXEC_SUFFIX}"
     LTPROOT=${LTPROOT:-../../../..}

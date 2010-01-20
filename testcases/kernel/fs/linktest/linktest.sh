@@ -29,6 +29,8 @@ export TCID=linker01
 export TST_TOTAL=2
 export TST_COUNT=1
 
+PATH=$PATH:$LTPTOOLS
+
 if [ $# -ne 2 ]; then
 	tst_res TBROK "" "usage: $0 {softlink count} {hardlink count}"
 	exit 1

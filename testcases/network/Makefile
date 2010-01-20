@@ -30,9 +30,11 @@ CLEAN_TARGETS		+= $(DIR)
 
 INSTALL_DIR		:= testcases/bin
 
-INSTALL_TARGETS		:= $(addprefix $(DIR)/bin.,sm med lg jmb)
+INSTALL_TARGETS		:= $(DIR)/*
 
 RM			+= -r
+
+INSTALL_MODE := 0644
 
 $(INSTALL_TARGETS): | generate 
 

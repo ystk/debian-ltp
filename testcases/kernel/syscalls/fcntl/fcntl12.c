@@ -106,9 +106,9 @@ int main(int ac, char **av)
 		}
 		waitpid(pid, &status, 0);
 		if (WEXITSTATUS(status) == 0) {
-			tst_resm(TINFO, "block 1 PASSED");
+			tst_resm(TPASS, "block 1 PASSED");
 		} else {
-			tst_resm(TINFO, "block 1 FAILED");
+			tst_resm(TFAIL, "block 1 FAILED");
 		}
 		tst_resm(TINFO, "Exit block 1");
 	}

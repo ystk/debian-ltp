@@ -30,3 +30,5 @@ INSTALL_TARGETS		:= run_cpuctl_test.sh run_cpuctl_stress_test.sh parameters.sh r
 LDLIBS			+= -lm -lcontrollers
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk
+
+$(MAKE_TARGETS): %: | $(LIB)

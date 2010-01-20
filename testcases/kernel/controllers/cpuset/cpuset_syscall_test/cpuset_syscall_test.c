@@ -38,6 +38,7 @@
 #include <sys/shm.h>
 #include <syscall.h>
 #include <inttypes.h>
+#include <errno.h>
 #include "config.h"
 #include "linux_syscall_numbers.h"
 #include "test.h"
@@ -68,22 +69,40 @@ int ret;
 #define MPOL_F_ADDR (1<<1) /* look up vma using address */
 #define MPOL_F_MEMS_ALLOWED (1<<2) /* return allowed memories */
 
+#define STUB_SYSCALL														\
+	{																							\
+		errno=ENOSYS;																\
+		return -1;																	\
+	}
+
 static int get_mempolicy(int *policy, unsigned long *nmask,
 			unsigned long maxnode, void *addr, int flags)
+#if defined __NR_get_mempolicy
 {
 	return syscall(__NR_get_mempolicy, policy, nmask, maxnode, addr, flags);
 }
+#else
+STUB_SYSCALL
+#endif
 
 static int mbind(void *start, unsigned long len, int policy, unsigned long *nodemask,
 		unsigned long maxnode, unsigned flags)
+#if defined __NR_mbind
 {
 	return syscall(__NR_mbind, start, len, policy, nodemask, maxnode, flags);
 }
+#else
+STUB_SYSCALL
+#endif
 
 static int set_mempolicy(int policy, unsigned long *nodemask, unsigned long maxnode)
+#if defined __NR_set_mempolicy
 {
 	return syscall(__NR_set_mempolicy, policy, nodemask, maxnode);
 }
+#else
+STUB_SYSCALL
+#endif
 
 #define OPT_setaffinity		(SCHAR_MAX + 1)
 #define OPT_getaffinity		(SCHAR_MAX + 2)

@@ -74,7 +74,7 @@ echo "Checking for rusersd on $RHOST"
 rpcinfo -u $RHOST rusersd > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "Attempting to start rusersd on $RHOST"
-  rsh -n -l root $RHOST "/usr/sbin/rpc.rusersd &"
+  rsh -n -l root $RHOST "/usr/sbin/rpc.rusersd > /dev/null 2>&1 &"
   [ $? -eq 0 ] || end_testcase "rusersd is inactive on $RHOST" 
   PID=`rsh -n $RHOST ps -ewf | grep rusersd | awk '{print $2 }'`
   echo "ruserd started on $RHOST"

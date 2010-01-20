@@ -32,8 +32,6 @@ $(LIBDIR):
 $(LIB): $(LIBDIR)
 	$(MAKE) -C $^ -f "$(abs_srcdir)/$^/Makefile" all
 
-all: | $(LIB)
-
 LDFLAGS			+= -L$(LIBDIR)
 
 # vim: syntax=make

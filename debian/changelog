@@ -1,0 +1,336 @@
+ltp (20091231+dfsg-1) unstable; urgency=low
+
+  * New upstream vesion
+  * Fix FTBFS on alpha, take 2 (add more stub syscall definitions)
+  * Don't quote LTP_VERSION, because it is a variable (thanks Riku
+    Voipio)
+  * Add missing include for stub definition in cpuset_syscall_test.c
+  * Fix the dependencies for parallel build (closes: 562292)
+  * Updated Standards-Version to 3.8.3 (no changes needed)
+
+ -- Jiri Palecek <jpalecek@web.de>  Wed, 20 Jan 2010 02:48:59 +0100
+
+ltp (20091031+dfsg-1) unstable; urgency=low
+
+  * New upstream version
+  * Adapt the packaging to new upstream buildsystem. Also, change the
+    test directories from /usr/lib/ltp/test/linux/... to
+    /usr/lib/ltp/...
+
+ -- Jiri Palecek <jpalecek@web.de>  Sun, 13 Dec 2009 22:57:14 +0100
+
+ltp (20090630+dfsg-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 21 Jul 2009 16:22:56 +0200
+
+ltp (20090531+dfsg-4) unstable; urgency=low
+
+  * More build failure fixes
+
+ -- Jiri Palecek <jpalecek@web.de>  Fri, 19 Jun 2009 21:07:54 +0200
+
+ltp (20090531+dfsg-3) unstable; urgency=low
+
+  * Fix even more build failures
+  * Bug fix: "&#39;__NR_ssetmask&#39; undeclared", thanks to Kurt Roeckx
+    (Closes: #533635).
+
+ -- Jiri Palecek <jpalecek@web.de>  Fri, 19 Jun 2009 17:04:29 +0200
+  
+ltp (20090531+dfsg-2) unstable; urgency=low
+
+  * Fix some build failures (thanks Riku Voipio)
+
+ -- Jiri Palecek <jpalecek@web.de>  Wed, 17 Jun 2009 01:44:35 +0200
+
+ltp (20090531+dfsg-1) unstable; urgency=low
+
+  * New upstream version
+    - some executables (eg. pan) are renamed (eg. to ltp-pan)
+  * Install files under /usr/lib/ltp/ instead of /usr/lib/debian-test/
+  * First version of new ltpmenu2 script, rewritten in perl, with
+    perspective of future improvements
+  * Change the dependency on libcap2-dev to allow satisfying it with
+    libcap-dev, thanks to Torsten Werner (Closes: #520837).
+  * Fix some bashisms (closes: #530129, #530130, #530131, #530132, #530133)
+  * Recommend all ltp-*-test packages in ltp (thanks Marc Tardif)
+
+ -- Jiri Palecek <jpalecek@web.de>  Thu, 11 Jun 2009 23:25:05 +0200
+
+ltp (20090131+dfsg-2) unstable; urgency=low
+
+  * Fix a FTBFS on non-x86 archs; upstream patch by Seiichi Ikarashi
+    <s.ikarashi@jp.fujitsu.com>.
+
+ -- Jiri Palecek <jpalecek@web.de>  Mon, 23 Feb 2009 12:21:19 +0100
+
+ltp (20090131+dfsg-1) unstable; urgency=low
+
+  * New upstream version
+  * Don't include audit-tests in the source, because it is an external
+    piece of software outside ltp CVS and we don't use it
+  * Add a Replaces: line to prevent failed upgrades
+  * Use su instead of sudo in utimensat test
+  * Add ssh-{client,server} to dependencies because of new ssh tests
+  * Suggest ipsec-tools and ethtool for network tests, which use it
+  * Correct possible errors in the runtest files
+  * Convert copyright to UTF-8, to appease lintian
+  * Adapt copyright for a new version
+  * Call do_cleanup even when the testcase failed in rpc01
+  * Add ${misc:Depends} to the dependencies to appease lintian
+  * Add support (depndencies and cleanup routines) for automake, which
+    ltp newly uses
+  * Change the section of ltp commands' manpages to 1ltp (closes:
+    #509250)
+
+ -- Jiri Palecek <jpalecek@web.de>  Wed, 18 Feb 2009 01:34:09 +0100
+
+ltp (20081130+dfsg-3) unstable; urgency=low
+
+  * Correct preprocessor directives in signalfd testcase
+
+ -- Jiri Palecek <jpalecek@web.de>  Wed, 17 Dec 2008 10:29:55 +0100
+
+ltp (20081130+dfsg-2) unstable; urgency=low
+
+  * Fix a syntax error in connectors makefile
+  * Bump standards version to 3.8.0 (no changes needed; however, we
+    don't support parallel=n)
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 16 Dec 2008 17:30:20 +0100
+
+ltp (20081130+dfsg-1) experimental; urgency=low
+
+  * New upstream version
+  * Add README.Debian to all binary packages (closes: #496411)
+  * Build-depend on autoconf, used to determine presence of some syscalls
+  * Always build all controllers tests on Debian
+  * Build the connectors tests too
+  * Enable the controllers tests
+  * Use dh_buildinfo while building
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 09 Dec 2008 18:31:22 +0100
+
+ltp (20081031+dfsg-2) experimental; urgency=low
+
+  * Deal with missing syscalls (causing FTBFS on alpha)
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 11 Nov 2008 16:59:36 +0100
+
+ltp (20081031+dfsg-1) experimental; urgency=low
+
+  * New upstream version
+  * Delete an a.out file in eventfd Makefile (fixes FTBFS)
+  * Don't depend on ncurses as we don't use it in the build process
+  * Change the install rule to reflect upstream's installing into
+    $(DESTDIR)/$(PREFIX) now
+  * Suggest c-compiler and linux-libc-dev for the asapi test
+  * Include the power management tests
+  * Forward return values from children in some tests
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 04 Nov 2008 15:42:07 +0100
+
+ltp (20080930+dfsg-1) experimental; urgency=low
+
+  * New Upstream version 20080930
+  * Don't depend on gawk, because the scripts have been updated not to
+    need it.
+  * Updated copyright for new version
+  * Add a README.source file
+  * Do not make stub definitions for syscalls, whose tests check for
+    their presence with their own logic
+  * Moved the include files back to /usr/include/ltp
+  * Add a README.Debian file explainig the security status of the
+    package (closes: 496411)
+  * Correct the condition of compiling the timerfd test; should fix
+    FTBFS with some kernel versions
+  * Don't make utimensat01 setuid; remove sudo calls from
+    utimensat_tests.sh
+  * Recommend libcap2-bin in ltp-kernel-test, as the filecaps test needs
+    setcap
+  * Implement a (hopefully) proper way of getting machine endiannes in
+    file_test.sh
+  * Compile and include the ltp-aiodio tests
+  * Enabled ipv6_lib tests
+
+ -- Jiri Palecek <jpalecek@web.de>  Thu, 09 Oct 2008 02:16:53 +0200
+
+ltp (20080831+dfsg-2) experimental; urgency=low
+
+  * Remove duplicate entries from .install files, change the logic for
+    generating them
+  * Add Vcs-* and Homepage fields to copyright and modify packages'
+    description to include LTP description and a big warning
+  * Add watch file
+  * Fix some bashisms
+
+ -- Jiri Palecek <jpalecek@web.de>  Sat, 13 Sep 2008 17:01:13 +0200
+
+ltp (20080831+dfsg-1) experimental; urgency=low
+
+  * New upstream version (closes: #420148)
+  * Added some manpages
+
+ -- Jiri Palecek <jpalecek@web.de>  Tue, 09 Sep 2008 16:57:26 +0200
+
+ltp (20080731+dfsg-1) UNRELEASED; urgency=low
+
+  * New upstream version
+  * Build-Depends fixes
+  * Fix permissions of ltp-dev files
+  * Adapt copyright to new version
+  * Don't run git-dch when importing upstream (hopefully)
+  * Imported Upstream version 20080831
+  * Remove cruft from .orig.tar.gz
+  * Make clean target remove generated file
+    tescases/kernel/include/linux_syscall_numbers.h
+  * Changed dfsg-cleanup script to automatically solve merge conflicts
+    on removed files in git
+
+ -- Jiri Palecek <jirka@debian.(none)>  Tue, 09 Sep 2008 00:18:12 +0200
+
+ltp (20080630+dfsg-1) UNRELEASED; urgency=low
+  
+  * New upstream version
+  * New maintainer (closes: #470091)
+  * Add manual pages to ltp-dev (taken from upstream rpm ltp package)
+  * Change ltp-dev install use the official install target. Also, move
+    the include files to /usr/include and make the pkg-config file
+    functional.
+  * Generate and package reference files from the maths tests
+  * Delete the change_owner and creat_link binary, as it is an insecure suid
+    root binary; rewrite tests that use it
+  * Fixed syslog for use in Debian
+  * Add $LTPTOOLS to PATH to find tst_resm and friends
+  * Fixed some bashisms
+  * Use nogroup instead of nobody for the name of the nobody user's
+    group
+  * Build fixes
+
+ -- Jiri Palecek <jpalecek@web.de>  Mon, 01 Sep 2008 14:14:29 +0200
+
+ltp (20060918-2) unstable; urgency=low
+
+  * Remove unnecessary build-depends on libc6-dev that breaks build
+    on Alpha, IA64. Closes: #389189.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 29 Sep 2006 10:40:45 +0100
+
+ltp (20060918-1) unstable; urgency=low
+
+  * New upstream release. 
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 21 Sep 2006 12:33:30 +0100
+
+ltp (20060822-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 12 Sep 2006 21:54:21 +0100
+
+ltp (20060717-1) unstable; urgency=low
+
+  * New upstream release. Closes: #305934, #378303.
+  * Move to Standards-Version: 3.7.2. No changes required.
+  * Move to debhelper >= 5. No changes required.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 28 Jul 2006 14:27:41 +0100
+
+ltp (20050107-2) unstable; urgency=low
+
+  * FTBFS with gcc-4.0.  Thanks to Andreas Jochens for patch. Closes: #294533. 
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 10 Feb 2005 10:40:47 +0000
+
+ltp (20050107-1) unstable; urgency=low
+
+  * New upstream release. Closes: #278386.
+  * FTBFS on amd64: Closes: #288901.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 10 Aug 2004 19:04:47 +0100
+
+ltp (20040603-1) unstable; urgency=low
+
+  * New upstream release.
+  * Build-Depend on libc6-dev | libc6.1-dev ; Closes: #253966.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 12 Jun 2004 18:01:24 +0100
+
+ltp (20040506-3) unstable; urgency=low
+
+  *  Depend on libc6-dev >= 2.3.2.ds1-13 for SHM_HUGETLB. Closes: #251311
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 31 May 2004 22:33:33 +0100
+
+ltp (20040506-2) unstable; urgency=low
+
+  * tst_sig.c: Fix build failure on HPPA. Closes: #249843.
+  * syscall01.c: Fix build failure on Alpha.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 19 May 2004 21:28:54 +0100
+
+ltp (20040506-1) unstable; urgency=low
+
+  * New upstream release. Closes: #193464.
+  * Convert to use dbs.
+  * Add lintian overrides files to avoid warning about unstripped binaries.
+  * Man page for ltpmenu; switch from ltp to ltpmenu command.
+  * ltpmenu.1: corrected references to man pages. Closes: #218977.
+  * Corrected pan.1 references to 'ltp-pan.1'. Closes: #218979.
+  * Moved to Standards-Version: 3.6.1.0 ; no changes required.
+  * Package 'ltp' is Arch: all, as it only contains scripts and docs.
+  * Changed maintainer email to mckinstry@debian.org
+  * Temporarily disabled Suggests: debian-test, as its not in the
+    archive (a new version is in progress).
+  * Change references to 'fdformat' to use superformat in fdutils package
+    instead.
+  * ltp-kernel-test depends on gcc. Closes: #245023.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 3 May 2004 21:57:53 +0100
+
+ltp (20030206-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Sun,  9 Feb 2003 21:40:15 +0000
+
+ltp (20030110-2) unstable; urgency=low
+
+  * Fix spelling mistakes in debian/control Suggests. (Closes: #178534). 
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Sat,  1 Feb 2003 07:14:24 +0000
+
+ltp (20030110-1) unstable; urgency=low
+
+  * New upstream release.
+  * tests/kernel/syscall/Makefile: Made iopl and ioperm syscall tests conditional on i386 build.
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Wed, 15 Jan 2003 10:14:31 +0000
+
+ltp (20021210-1) unstable; urgency=low
+
+  * New upstream release. 
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Tue, 17 Dec 2002 21:39:31 +0000
+
+ltp (20021107-1) unstable; urgency=low
+
+  * New upstream release. 
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Sat,  9 Nov 2002 12:53:07 +0100
+
+ltp (20021008-2) unstable; urgency=low
+
+  * Build-depends on Flex. Closes: #167888.
+  * Changed ltp-tools pan.1 to ltp-pan.1 avoid collision with Gnome newsreader pan.
+    Closes: #167914.
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Tue,  5 Nov 2002 23:08:33 +0100
+
+ltp (20021008-1) unstable; urgency=low
+
+  * First official release. 
+
+ -- Alastair McKinstry <mckinstry@computer.org>  Wed, 30 Oct 2002 18:20:55 +0100

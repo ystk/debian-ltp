@@ -31,6 +31,8 @@
 #	This version is intended for EAL certification, it will need modification 
 #	to conform with LTP standards in the offical LTP tree.
 
+PATH=$PATH:$LTPTOOLS
+
 do_setup()
 {
     RHOST="localhost"

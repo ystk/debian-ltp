@@ -7,7 +7,7 @@ test()
     arg=${1}; shift
     res=${1}
 
-    ./fs_perms ${arg} ${res}
+    fs_perms ${arg} ${res}
     if [ $? -ne 0 ]; then
        Code=$((Code + 1))
     fi

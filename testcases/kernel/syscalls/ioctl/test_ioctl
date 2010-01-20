@@ -19,6 +19,7 @@
 ##                                                                            ##
 ################################################################################
 
+PATH=$PATH:$LTPTOOLS
 export TCID=ioctl01_02
 export TST_TOTAL=2
 export TST_COUNT=0

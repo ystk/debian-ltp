@@ -74,6 +74,8 @@ int main(int ac, char **av)
 
 	local_flag = PASSED;
 
+	tst_tmpdir();
+
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
 		sprintf(testfile, "dup07.%d", getpid());
@@ -159,7 +161,8 @@ int main(int ac, char **av)
 			tst_resm(TFAIL, "Test failed");
 		}
 
-		tst_exit();
 	}			/* end for */
+	tst_rmdir();
+	tst_exit();
 	return 0;
 }

@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/bash
 ################################################################################
 ##                                                                            ##
 ## Copyright (c) International Business Machines  Corp., 2007                 ##
@@ -23,6 +23,7 @@
 #
 # History:       July 04 2007 - Created - Sivakumar Chinnaiah.
 #
+#
 # File :         numa01.sh
 #
 # Description:  Test Basic functionality of numactl command.
@@ -45,7 +46,7 @@
 #local_node               4277766         4566799
 #other_node                  2642           38542
 
-
+PATH=$PATH:$LTPTOOLS
 
 # Function:     chk_ifexists
 #

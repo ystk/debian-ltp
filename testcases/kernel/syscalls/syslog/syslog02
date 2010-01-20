@@ -28,6 +28,7 @@
 #        For each level, a seperate configuration file is        #
 #        created and that will be used as syslog.conf file.      #
 ##################################################################
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 #set -x

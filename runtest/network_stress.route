@@ -2,6 +2,8 @@
 # Stress test for routing table
 #
 
+#ALL: $RHOST $LHOST_HWADDRS $RHOST_HWADDRS
+
 route4-change-dst route4-change-dst
 route4-change-gw route4-change-gw
 route4-change-if route4-change-if

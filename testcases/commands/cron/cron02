@@ -47,7 +47,7 @@ do_setup(){
         useradd -m -g $TEST_USER_GROUP $TEST_USER 
         if [ $? != 0 ]
         then {
-                echo "Could not add test user $TEST_USER to system $RHOST."
+                echo "Could not add test user $TEST_USER to system."
                 exit 1
         }
         fi

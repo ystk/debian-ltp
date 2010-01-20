@@ -73,7 +73,7 @@ echo "Checking for rstatd on $RHOST"
 rpcinfo -u $RHOST rstatd 3 > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "Attempting to start rstatd on $RHOST"
-  rsh -n -l root $RHOST "/usr/sbin/rpc.rstatd &"
+  rsh -n -l root $RHOST "/usr/sbin/rpc.rstatd > /dev/null 2>&1 &"
   [ $? -eq 0 ] || end_testcase "rstatd is inactive on $RHOST" 
   PID=`rsh -n $RHOST ps -ewf | grep rstatd | awk '{print $2 }'`
   echo "rstatd started on $RHOST"

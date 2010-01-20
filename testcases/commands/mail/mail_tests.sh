@@ -48,12 +48,7 @@ else
     LTPTMP=$TMPBASE
 fi
 
-if [ -z "$LTPBIN" -a -z "$LTPROOT" ]
-then
-    LTPBIN=./
-else
-    LTPBIN=$LTPROOT/testcases/bin
-fi
+LTPBIN=$LTPTOOLS
 
 RC=0
 export TCID=SETUP
@@ -122,7 +117,7 @@ else
     sleep 10s
     echo "d" | mail -u root > $LTPTMP/tst_mail.res 2>&1
     mailsub=$(awk '/^>N/ {print match($9, "Test")}' $LTPTMP/tst_mail.res)
-    if [ $mailsub -ne 0 ]
+    if [ -n "$mailsub" ] && [ "$mailsub" -ne 0 ]
     then
         $LTPBIN/tst_resm TPASS \
             "Test #1: Mail was send to root & was received"
@@ -302,7 +297,7 @@ else
     RC1=$(awk '/^>N/ {print match($9, "Test")}' $LTPTMP/tst_mail.res)
     echo "d" | mail -u mail_test > $LTPTMP/tst_mail.res 2>&1
     RC2=$(awk '/^>N/ {print match($9, "Test")}' $LTPTMP/tst_mail.res)
-    if [ $RC1 -ne 0 -a $RC2 -ne 0 ]
+    if [ -n "$RC1" -a -n "$RC2" ] && ["$RC1" -ne 0 -a "$RC2" -ne 0 ]
     then
         $LTPBIN/tst_resm TPASS \
             "Test #4: Mail was carbon copied to user mail_test"
@@ -343,7 +338,7 @@ else
     RC1=$(awk '/^>N/ {print match($9, "Test")}' $LTPTMP/tst_mail.res)
     echo "d" | mail -u mail_test > $LTPTMP/tst_mail.res 2>&1
     RC2=$(awk '/^>N/ {print match($9, "Test")}' $LTPTMP/tst_mail.res)
-    if [ $RC1 -ne 0 -a $RC2 -ne 0 ]
+    if [ -n "$RC1" -a -n "$RC2" ] && [ "$RC1" -ne 0 -a "$RC2" -ne 0 ]
     then
         $LTPBIN/tst_resm TPASS \
             "Test #5: Mail was carbon copied to user mail_test"

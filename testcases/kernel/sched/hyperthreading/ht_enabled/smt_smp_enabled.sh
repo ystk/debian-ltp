@@ -31,11 +31,12 @@ export TST_COUNT=1
 TFAILCNT=0
 RC=0
 
+PATH=$PATH:$LTPTOOLS:$LTPROOT/testcases/bin
 
 # check for SMT/SMP System
 tst_resm TINFO "Begin: SMT/SMP Enabled"
-if [ -f ./ht_enabled ];then
-	./ht_enabled
+if which ht_enabled > /dev/null 2>&1;then
+	ht_enabled
 	ret_value=$?
 
 	if [ $ret_value -ne 0 ];then

@@ -1,0 +1,34 @@
+usr/lib/ltp/runtest/crashme		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/containers		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/connectors		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/controllers		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/filecaps		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/cpuacct
+usr/lib/ltp/runtest/power_management_tests_exclusive
+usr/lib/ltp/runtest/fs		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/fsx		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/fcntl-locktests		usr/lib/ltp/runtest
+usr/lib/ltp/runtest/hugetlb
+usr/lib/ltp/runtest/ipc
+usr/lib/ltp/runtest/mm
+usr/lib/ltp/runtest/sched
+usr/lib/ltp/runtest/pipes
+usr/lib/ltp/runtest/quickhit
+usr/lib/ltp/runtest/syscalls
+usr/lib/ltp/runtest/nptl
+usr/lib/ltp/runtest/pty
+usr/lib/ltp/runtest/ltplite
+usr/lib/ltp/runtest/stress.*
+usr/lib/ltp/runtest/ltp-aio*
+usr/lib/ltp/runtest/timers
+usr/lib/ltp/runtest/power_management_tests
+usr/lib/ltp/runtest/lvm.*
+usr/lib/ltp/runtest/scsi_debug.*
+usr/lib/ltp/runtest/tcore
+usr/lib/ltp/runtest/hyperthreading
+usr/lib/ltp/runtest/nw_under_ns
+usr/lib/ltp/runtest/test_dma_thread_diotest7
+usr/lib/ltp/runtest/cap_bounds
+usr/lib/ltp/runtest/perfcounters
+usr/lib/ltp/runtest/numa
+../../testcases/kernel/power_management/lib usr/lib/ltp/testcases/bin

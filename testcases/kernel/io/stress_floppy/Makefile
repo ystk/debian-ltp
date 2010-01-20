@@ -22,9 +22,11 @@ include $(top_srcdir)/include/mk/testcases.mk
 
 CLEAN_TARGETS		:= 10*K_file dumpdir
 
-INSTALL_DEPS		:= dumpdir 
+INSTALL_TARGETS		:= 10*K_file stress_floppy dd_file dumpdir/*
 
-MAKE_TARGETS		:=
+INSTALL_MODE = $(if $(filter %stress_floppy,$@), 0755, 0644)
+
+all: dumpdir
 
 # dumpdir's a directory.
 RM			+= -r

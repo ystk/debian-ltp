@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 ################################################################################
 ##                                                                            ##
@@ -21,6 +21,8 @@
 ## Author: Li Zefan <lizf@cn.fujitsu.com>                                     ##
 ##                                                                            ##
 ################################################################################
+
+PATH=$PATH:$LTPTOOLS
 
 cd $LTPROOT/testcases/bin
 
@@ -97,14 +99,14 @@ test_1()
 	./fork_processes &
 	sleep 1
 
-	mount -t cgroup xxx cgroup/
+	mount -t cgroup xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "failed to mount cgroup filesystem"
 		failed=1
 		/bin/kill -SIGTERM $!
 		return
 	fi
-	cat cgroup/tasks > /dev/null
+	cat $CGROUP_DIR/tasks > /dev/null
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -113,7 +115,7 @@ test_1()
 
 	/bin/kill -SIGTERM $!
 	wait $!
-	umount cgroup/
+	umount $CGROUP_DIR/
 }
 
 #---------------------------------------------------------------------------
@@ -124,20 +126,20 @@ test_1()
 #---------------------------------------------------------------------------
 test_2()
 {
-	mount -t cgroup xxx cgroup/
+	mount -t cgroup xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "Failed to mount cgroup filesystem"
 		failed=1
 		return 1
 	fi
 
-	echo 0 > cgroup/notify_on_release
-	mkdir cgroup/0
-	val1=`cat cgroup/0/notify_on_release`
+	echo 0 > $CGROUP_DIR/notify_on_release
+	mkdir $CGROUP_DIR/0
+	val1=`cat $CGROUP_DIR/0/notify_on_release`
 
-	echo 1 > cgroup/notify_on_release
-	mkdir cgroup/1
-	val2=`cat cgroup/1/notify_on_release`
+	echo 1 > $CGROUP_DIR/notify_on_release
+	mkdir $CGROUP_DIR/1
+	val2=`cat $CGROUP_DIR/1/notify_on_release`
 
 	if [ $val1 -ne 0 -o $val2 -ne 1 ]; then
 		tst_resm TFAIL "wrong notify_on_release value"
@@ -146,8 +148,8 @@ test_2()
 		tst_resm TPASS "notify_on_release is inherited"
 	fi
 
-	rmdir cgroup/0 cgroup/1
-	umount cgroup/
+	rmdir $CGROUP_DIR/0 $CGROUP_DIR/1
+	umount $CGROUP_DIR/
 
 	return $failed
 }
@@ -174,7 +176,7 @@ test_3()
 	fi
 
 	# Run the test for 30 secs
-	mount -t cgroup -o cpu xxx cgroup/
+	mount -t cgroup -o cpu xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "Failed to mount cpu subsys"
 		failed=1
@@ -196,8 +198,8 @@ test_3()
 		tst_resm TPASS "no kernel bug was found"
 	fi
 
-	rmdir cgroup/* 2> /dev/null
-	umount cgroup/
+	rmdir $CGROUP_DIR/* 2> /dev/null
+	umount $CGROUP_DIR/
 }
 
 #---------------------------------------------------------------------------
@@ -220,10 +222,10 @@ test_4()
 		return
 	fi
 
-	mount -t cgroup xxx cgroup/
-	mkdir cgroup/0
-	rmdir cgroup/0
-	umount cgroup/
+	mount -t cgroup xxx $CGROUP_DIR/
+	mkdir $CGROUP_DIR/0
+	rmdir $CGROUP_DIR/0
+	umount $CGROUP_DIR/
 
 	dmesg | grep -q "MAX_LOCKDEP_SUBCLASSES too low"
 	if [ $? -eq 0 ]; then
@@ -254,7 +256,7 @@ test_5()
 	subsys1=`tail -n 1 /proc/cgroups | awk '{ print $1 }'`
 	subsys2=`tail -n 2 /proc/cgroups | head -1 | awk '{ print $1 }'`
 
-	mount -t cgroup -o $subsys1,$subsys xxx cgroup/
+	mount -t cgroup -o $subsys1,$subsys xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "mount $subsys1 and $subsys2 failed"
 		failed=1
@@ -262,23 +264,23 @@ test_5()
 	fi
 
 	# This 2nd mount should fail
-	mount -t cgroup -o $subsys1 xxx cgroup/ 2> /dev/null
+	mount -t cgroup -o $subsys1 xxx $CGROUP_DIR/ 2> /dev/null
 	if [ $? -eq 0 ]; then
 		tst_resm TFAIL "mount $subsys1 should fail"
-		umount cgroup/
+		umount $CGROUP_DIR/
 		failed=1
 		return
 	fi
 
-	mkdir cgroup/0
+	mkdir $CGROUP_DIR/0
 	# Otherwise we can't attach task
-	if [ "$subsys1" == cpuset -o "$subsys2" == cpuset ]; then
-		echo 0 > cgroup/0/cpuset.cpus 2> /dev/null
-		echo 0 > cgroup/0/cpuset.mems 2> /dev/null
+	if [ "$subsys1" = cpuset -o "$subsys2" = cpuset ]; then
+		echo 0 > $CGROUP_DIR/0/cpuset.cpus 2> /dev/null
+		echo 0 > $CGROUP_DIR/0/cpuset.mems 2> /dev/null
 	fi
 
 	sleep 100 &
-	echo $! > cgroup/0/tasks
+	echo $! > $CGROUP_DIR/0/tasks
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -288,8 +290,8 @@ test_5()
 	# clean up
 	/bin/kill -SIGTERM $! > /dev/null
 	wait $!
-	rmdir cgroup/0
-	umount cgroup/
+	rmdir $CGROUP_DIR/0
+	umount $CGROUP_DIR/
 }
 
 #---------------------------------------------------------------------------
@@ -324,9 +326,9 @@ test_6()
 	fi
 
 	# clean up
-	mount -t cgroup -o ns xxx cgroup/ > /dev/null 2>&1
-	rmdir cgroup/[1-9] > /dev/null 2>&1
-	umount cgroup/
+	mount -t cgroup -o ns xxx $CGROUP_DIR/ > /dev/null 2>&1
+	rmdir $CGROUP_DIR/[1-9] > /dev/null 2>&1
+	umount $CGROUP_DIR/
 }
 
 #---------------------------------------------------------------------------
@@ -339,44 +341,44 @@ test_6()
 #---------------------------------------------------------------------------
 test_7_1()
 {
-	mount -t cgroup -o $subsys xxx cgroup/
+	mount -t cgroup -o $subsys xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "failed to mount $subsys"
 		failed=1
 		return
 	fi
 
-	mkdir cgroup/0
-	sleep 100 < cgroup/0 &	# add refcnt to this dir
-	rmdir cgroup/0
+	mkdir $CGROUP_DIR/0
+	sleep 100 < $CGROUP_DIR/0 &	# add refcnt to this dir
+	rmdir $CGROUP_DIR/0
 
 	# remount with new subsystems added
 	# since 2.6.28, this remount will fail
-	mount -t cgroup -o remount xxx cgroup/ 2> /dev/null
+	mount -t cgroup -o remount xxx $CGROUP_DIR/ 2> /dev/null
 	/bin/kill -SIGTERM $!
 	wait $!
-	umount cgroup/
+	umount $CGROUP_DIR/
 }
 
 test_7_2()
 {
-	mount -t cgroup xxx cgroup/
+	mount -t cgroup xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "failed to mount $subsys"
 		failed=1
 		return
 	fi
 
-	mkdir cgroup/0
-	sleep 100 < cgroup/0 &	# add refcnt to this dir
-	rmdir cgroup/0
+	mkdir $CGROUP_DIR/0
+	sleep 100 < $CGROUP_DIR/0 &	# add refcnt to this dir
+	rmdir $CGROUP_DIR/0
 
 	# remount with some subsystems removed
 	# since 2.6.28, this remount will fail
-	mount -t cgroup -o remount,$subsys xxx cgroup/ 2> /dev/null
+	mount -t cgroup -o remount,$subsys xxx $CGROUP_DIR/ 2> /dev/null
 	/bin/kill -SIGTERM $!
 	wait $!
-	umount cgroup/
+	umount $CGROUP_DIR/
 
 	# due to the bug, reading /proc/sched_debug may lead to oops
 	grep -q -w "cpu" /proc/cgroups
@@ -429,17 +431,17 @@ test_7()
 #---------------------------------------------------------------------------
 test_8()
 {
-	mount -t cgroup xxx cgroup/
+	mount -t cgroup xxx $CGROUP_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "failed to mount cgroup filesystem"
 		failed=1
 		return
 	fi
 
-	./getdelays -C cgroup/tasks > /dev/null 2>&1
+	./getdelays -C $CGROUP_DIR/tasks > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		tst_resm TFAIL "should have failed to get cgroupstat of tasks file"
-		umount cgroup/
+		umount $CGROUP_DIR/
 		failed=1
 		return
 	fi
@@ -449,7 +451,7 @@ test_8()
 		tst_resm TPASS "no kernel bug was found"
 	fi
 
-	umount cgroup/
+	umount $CGROUP_DIR/
 }
 
 #---------------------------------------------------------------------------
@@ -472,7 +474,7 @@ test_9()
 	wait $pid1
 	wait $pid2
 
-	umount cgroup/ 2> /dev/null
+	umount $CGROUP_DIR/ 2> /dev/null
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -499,8 +501,8 @@ test_10()
 	wait $pid1
 	wait $pid2
 
-	rmdir cgroup/0 2> /dev/null
-	umount cgroup/ 2> /dev/null
+	rmdir $CGROUP_DIR/0 2> /dev/null
+	umount $CGROUP_DIR/ 2> /dev/null
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -510,16 +512,16 @@ test_10()
 
 # main
 
-mkdir cgroup/
+CGROUP_DIR=$(mktemp -dt cgroupXXXXXXXX)
 
-for ((cur = 1; cur <= $TST_TOTAL; cur++))
-{
+for cur in $(seq 1 $TST_TOTAL)
+do
 	export TST_COUNT=$cur
 
 	test_$cur
-}
+done
 
-rmdir cgroup/
+rmdir $CGROUP_DIR
 
 exit $failed
 

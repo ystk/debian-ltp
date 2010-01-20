@@ -40,6 +40,8 @@
 #
 #----------------------------------------------------------------------
 
+PATH=$PATH:$LTPTOOLS
+
 #-----------------------------------------------------------------------
 #
 # FUNCTION:  do_setup
@@ -50,7 +52,8 @@ do_setup()
 {
 
     TC=ftp
-    TCtmp=${TCtmp:-$LTPROOT/$TC${EXEC_SUFFIX}$$}
+    TMPDIR=${TMPDIR:-/tmp}
+    TCtmp=${TCtmp:-$TMPDIR/$TC${EXEC_SUFFIX}$$}
     TCdat=${TCdat:-$LTPROOT/datafiles}
     SLEEPTIME=${SLEEPTIME:-0}
     ASCII_FILES=${ASCII_FILES:-"ascii.sm ascii.med ascii.lg ascii.jmb"}

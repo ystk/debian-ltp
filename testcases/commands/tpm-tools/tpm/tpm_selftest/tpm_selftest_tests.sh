@@ -17,6 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
+PATH=$PATH:$LTPTOOLS
+
 setup()
 {
 	RC=0				# Return code from commands.

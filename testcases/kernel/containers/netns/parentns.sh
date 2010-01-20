@@ -32,6 +32,8 @@
 
 # The test case ID, the test case count and the total number of test case
 
+PATH=$PATH:$LTPTOOLS
+
 TCID=${TCID:-parentns.sh}
 TST_TOTAL=1
 TST_COUNT=1

@@ -295,7 +295,7 @@ int main(int ac, char **av)
 
 		for (; test_num < TST_TOTAL; test_num++) {
 			tst_resm(TFAIL, "don't get event: mask=%x ",
-				 event_set[test_num]);
+				 event_set[test_num].mask);
 		}
 	}			/* End for TEST_LOOPING */
 

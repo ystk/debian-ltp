@@ -265,4 +265,26 @@ int ltp_clone_quick(unsigned long clone_flags, int (*fn)(void *arg),
 #endif
 #define TCID_DEFINE(ID) char *TCID = (#ID TCID_BIT_SUFFIX)
 
+static inline int tst_is_funcm_zero(int res, void (*func)(), ...)
+{
+  return func==0;
+}
+
+static inline int tst_is_func_zero(int res, const char* ch, void (*func)(), ...)
+{
+  return func==0;
+}
+
+#define tst_brk(...) do {                       \
+    tst_brk(__VA_ARGS__);                       \
+    if(!tst_is_func_zero(__VA_ARGS__))          \
+      tst_exit();                               \
+  } while(0)
+
+#define tst_brkm(...) do {                       \
+    tst_brkm(__VA_ARGS__);                       \
+    if(!tst_is_funcm_zero(__VA_ARGS__))           \
+      tst_exit();                                \
+  } while(0)
+
 #endif	/* __TEST_H__ */

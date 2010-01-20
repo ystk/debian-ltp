@@ -1,4 +1,5 @@
-#! /bin/sh
+#! /bin/bash
+# bash script because of $RANDOM
 #
 #   Copyright (c) International Business Machines  Corp., 2005
 #
@@ -47,6 +48,7 @@
 
 $trace_logic
 
+PATH=$PATH:$LTPTOOLS
 #-----------------------------------------------------------------------
 # Initialize local variables
 #-----------------------------------------------------------------------

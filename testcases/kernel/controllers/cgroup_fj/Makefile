@@ -25,6 +25,10 @@ top_srcdir		?= ../../../..
 include $(top_srcdir)/include/mk/testcases.mk
 include $(abs_srcdir)/../Makefile.inc
 
-INSTALL_TARGETS		:= *.sh
+INSTALL_TARGETS		:= *.sh cgroup_fj_testcases
+
+INSTALL_MODE = $(if $(filter %cgroup_fj_testcases,$@), 0644, 0755)
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk
+
+$(MAKE_TARGETS): %: | $(LIB)

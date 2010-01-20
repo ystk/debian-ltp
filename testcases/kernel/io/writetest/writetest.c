@@ -94,6 +94,7 @@ int write_file(off_t num_blocks, const char *filename)
         rv = write(fd, buf, BLOCKSIZE);
         if( rv != BLOCKSIZE ) {
             ret = -1;
+            unlink(filename);
             break;
         }
     }
@@ -238,6 +239,7 @@ int main(int argc, char *argv[])
         tst_resm(TFAIL, "Verify: Failure");
         tst_resm(TINFO, "Total mismatches: %d bytes\n", rv);
     }
+    unlink(Filename);
 
     cleanup();
     return 0;

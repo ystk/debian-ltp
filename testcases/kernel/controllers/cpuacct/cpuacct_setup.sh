@@ -54,7 +54,7 @@ cleanup ()
 	rmdir /dev/cpuacct/group* 2> /dev/null
 	umount /dev/cpuacct/ 2> /dev/null
 	rmdir /dev/cpuacct 2> /dev/null
-	rm -rf tmp2 2> /dev/null
+	rm -rf "$TMP2" 2> /dev/null
 }
 task_kill ()
 {
@@ -102,6 +102,7 @@ setup ()
 		echo "WARN: Earlier groups found and removed...";
 	fi
 
+  TMP2=$(mktemp)
 }
 
 # The usage of the script file

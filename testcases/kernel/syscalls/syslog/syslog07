@@ -35,6 +35,7 @@
 #         o Send syslog messages at all levels and see whether   #
 #           higher level messages are logged.                    #
 ##################################################################
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 #configuration file for syslog or syslog-ng

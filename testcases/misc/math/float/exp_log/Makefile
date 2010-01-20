@@ -28,4 +28,19 @@ CLEAN_TARGETS		:= *.ref*
 
 LDLIBS			+= -lm
 
+INSTALL_TARGETS := *.ref*
+
+MAKE_TARGETS := 
+
+INSTALL_MODE := 0644
+
+.INTERMEDIATE: $(patsubst $(abs_srcdir)/%.c,%,$(wildcard $(abs_srcdir)/gen*))
+
+float_reference: $(patsubst $(abs_srcdir)/%.c,%,$(wildcard $(abs_srcdir)/gen*))
+	./genexp_log .
+
+.PHONY: float_reference
+
+all: float_reference
+
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

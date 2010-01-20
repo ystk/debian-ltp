@@ -44,7 +44,7 @@ TEST_USER1_HOMEDIR="tacl/mount-ext3/$TEST_USER1"
 
 FILE_ACL="tacl/mount-ext3/test_file"
 FILE_ACL_LINK="tacl/mount-ext3/test_file_link"
-TCbin=`pwd`
+TCbin=$LTPROOT/testcases/bin/
 
 iam=`whoami`
 if [ "z$iam" = "z$TEST_USER1" ]
@@ -56,6 +56,13 @@ then
         echo "FAILED: Must have root access to execute this script"
         exit 1
 fi
+fi
+
+#-----------------------------------------------------------------------
+# FUNCTION:  do_setup
+#-----------------------------------------------------------------------
+
+do_setup(){
 
 if [ ! -e tacl ]
 then
@@ -71,50 +78,46 @@ fi
 dd if=/dev/zero of=tacl/blkext3 bs=1k count=10240
 chmod 777 tacl/blkext3
 #
-losetup /dev/loop0 tacl/blkext3 2>&1 > /dev/null
+LOOP_DEV=$(losetup -fs tacl/blkext3 2> /dev/null)
 if [ $? != 0 ]
 then
         echo ""
         echo "FAILED:  [ losetup ] Must have loop device support by kernel"
         printf "\t to execute this script\n"
+        losetup -d $LOOP_DEV # cleanup doesn't free the loop device if not mounted
+        do_cleanup
         exit 1
 fi
 
 mount | grep ext2
 if [ $? != 0 ]
 then
-        mkfs -t ext3 /dev/loop0 #> /dev/null 2>&1
+        mkfs -t ext3 $LOOP_DEV #> /dev/null 2>&1
         mkdir  -m 777 tacl/mount-ext3
-        mount -t ext3 -o defaults,acl,user_xattr /dev/loop0 tacl/mount-ext3
+        mount -t ext3 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext3
         if [ $? != 0 ]
         then
                 echo ""
                 echo "FAILED: [ mount ] Make sure that ACL (Access Control List)"
                 printf "\t and Extended Attribute are built into the kernel\n"
                 printf "\t Can not mount ext3 file system with acl and user_xattr options\n"
+                do_cleanup
                 exit 1
         fi
 else
-        mkfs -t ext2 /dev/loop0
+        mkfs -t ext2 $LOOP_DEV
         mkdir  -m 777 tacl/mount-ext3
-        mount -t ext2 -o defaults,acl,user_xattr /dev/loop0 tacl/mount-ext3
+        mount -t ext2 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext3
         if [ $? != 0 ]
         then
                 echo ""
                 echo "FAILED: [ mount ] Make sure that ACL (Access Control List)"
                 printf "\t and Extended Attribute are built into the kernel\n"
                 printf "\t Can not mount ext2 file system with acl and user_xattr options\n"
+                do_cleanup
                 exit 1
         fi
 fi
-fi
-
-
-#-----------------------------------------------------------------------
-# FUNCTION:  do_setup
-#-----------------------------------------------------------------------
-
-do_setup(){
 
 	rm -f $FILE_ACL
 	rm -f $FILE_ACL_LINK

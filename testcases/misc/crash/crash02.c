@@ -484,7 +484,7 @@ int
 in_blacklist (int sysno)
 {
   int i;
-  const list[] =
+  const int list[] =
     {
 #if defined(__ia64__)
       SYS_clone2,

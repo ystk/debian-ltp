@@ -45,7 +45,7 @@ TC=nfs02
 TCbin=${TCbin:=`pwd`}
 TCdat=${TCdat:=$TCbin/datafiles}
 TCsrc=${TCsrc:=$TCbin}
-TCtmp=${TCtmp:=$TCbin/$TC$$}
+TCtmp=${TCtmp:=/tmp/$TC$$}
 
 PID=$$
 
@@ -100,7 +100,7 @@ $trace_logic
    fi
 
    #Verify export
-   /usr/sbin/showmount -e $RHOST | grep $TESTDIR
+   /sbin/showmount -e $RHOST | grep $TESTDIR
    [ $? -eq 0 ] || end_testcase "$TESTDIR not exported"
 
    #Create $TCtmp for mount point

@@ -1,0 +1,49 @@
+#!/bin/sh
+
+discover_variable()
+{
+    VAR=$1;
+    fgrep -w "$VAR" -l -R debian/tmp/usr/lib/ltp/testcases/bin | sed 's/^.*\/\([^/]*\)$/\\\\(\1\\\\)/' | { 
+        read RET && 
+        while read x; do 
+            RET="$x\\|$RET" 
+        done &&
+        echo "g/\(^[^#]\).*\<\($RET\)\>/ s/\$/ # \$$VAR/" ||
+        echo "#"
+    }
+}
+
+# mkdir runtest.bak && cp runtest/* runtest.bak
+# [ -d runtest.bak ] || exit 1
+
+DVAR_HOSTS="$(discover_variable HOSTS)"
+DVAR_RUSERS="$(discover_variable RUSERS)"
+DVAR_RHOST="$(discover_variable RHOST)"
+DVAR_RUSER="$(discover_variable RUSER)"
+DVAR_PASSWD="$(discover_variable PASSWD)"
+DVAR_DEVICE="$(discover_variable DEVICE)"
+DVAR_DEVICE_FSTYPE="$(discover_variable DEVICE_FS_TYPE)"
+for f in debian/tmp/usr/lib/ltp/runtest/*; do
+    ed $f <<EOF
+g#/test/growfiles/reiser# s##"\$GROWFILES_REISER"#g
+g#/test/growfiles/ramdisk# s##"\$GROWFILES_RAMDISK"#g
+g#/test/growfiles/nfs# s##"\$GROWFILES_NFS"#g
+g#/test/growfiles/msdos# s##"\$GROWFILES_MSDOS"#g
+g#/test/growfiles/minix# s##"\$GROWFILES_MINIX"#g
+g#/test/growfiles/jfs# s##"\$GROWFILES_JFS"#g
+g#/test/growfiles/ext3# s##"\$GROWFILES_EXT3"#g
+g#/test/growfiles/ext2# s##"\$GROWFILES_EXT2"#g
+g#/test/aiodio2# s##"\$AIODIO2"#g
+g#/test/aiodio# s##"\$AIODIO"#g
+g#\<DEVICE_FS_TYPE\># s##"\$DEVICE_FS_TYPE"#g
+g#\<DEVICE\># s##"\$DEVICE"#g
+$DVAR_RHOST
+$DVAR_RUSER
+$DVAR_PASSWD
+$DVAR_DEVICE
+$DVAR_DEVICE_FSTYPE
+$DVAR_HOSTS
+$DVAR_RUSERS
+wq
+EOF
+done

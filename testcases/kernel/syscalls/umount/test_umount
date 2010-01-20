@@ -23,6 +23,8 @@ export TCID=umount123
 export TST_TOTAL=2
 export TST_COUNT=0
 
+PATH=$PATH:$LTPTOOLS
+
 for tttype in `ls /dev/tty*`
 do
 device_no="${tttype}:8"

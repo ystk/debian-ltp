@@ -35,6 +35,8 @@
 #
 #-----------------------------------------------------------------------
 
+PATH=$PATH:$LTPTOOLS
+
 #-----------------------------------------------------------------------
 #
 # FUNCTION:  do_setup
@@ -44,7 +46,8 @@
 do_setup()
 {
 
-    TCtmp=${TCtmp:-$LTPROOT/testcases/bin/$TC${EXEC_SUFFIX}$$}
+    TMPDIR=${TMPDIR:-/tmp}
+    TCtmp=${TCtmp:-$TMPDIR/$TC${EXEC_SUFFIX}$$}
     TCdat=${TCdat:-$LTPROOT/testcases/bin/datafiles}
     LHOST=`hostname`
     RHOST=${RHOST:-$LHOST}
@@ -83,7 +86,7 @@ do_test()
         rsh -n -l root $RHOST "rm -f $TCtmp/$j"
         sleep $SLEEPTIME
 
-        if [ "$SUM1 = $SUM2" ]; then
+        if [ "$SUM1" = "$SUM2" ]; then
             tst_resm TINFO "rcp $TCdat/$j $RHOST:$TCtmp/$j successful"
         else
             end_testcase "FAILED: wrong sum in transfer to $RHOST"

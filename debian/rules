@@ -1,0 +1,52 @@
+#!/usr/bin/make -f
+# rules file for the LTP package
+#
+
+# Uncomment this to turn on verbose mode. 
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+# export DH_COMPAT=5
+
+common-configure-arch common-configure-indep:: configure
+
+include /usr/share/cdbs/1/class/autotools.mk
+
+DEB_BUILD_PARALLEL = yes
+DEB_CONFIGURE_EXTRA_FLAGS = --prefix=/usr/lib/ltp --includedir=/usr/include/ltp --mandir=/usr/share/man --libdir=/usr/lib
+
+include debian/generate-lists
+
+configure::
+	$(DEB_MAKE_INVOKE) autotools
+
+runtest.stamp:
+	cd $(DEB_BUILDDIR) && sh debian/generate-runtest
+	touch runtest.stamp
+
+common-install-arch common-install-indep:: $(dh_install_targets) dh_install_check runtest.stamp
+	chmod 4755 $(CURDIR)/debian/tmp/usr/lib/ltp/testcases/bin/setuid_test
+	dh_buildinfo
+
+clean::
+	$(DEB_MAKE_INVOKE) ac-maintainer-clean
+	rm -f $(DEB_BUILDDIR)/include/config.h $(DEB_BUILDDIR)/include/config.h.in $(DEB_BUILDDIR)/include/stamp-h1 $(DEB_BUILDDIR)/m4/Makefile $(DEB_BUILDDIR)/config.mk
+	! [ -d $(DEB_BUILDDIR)/runtest.bak ] || \
+	{ \
+		rm -rf $(DEB_BUILDDIR)/runtest; \
+		mv $(DEB_BUILDDIR)/runtest.bak $(DEB_BUILDDIR)/runtest; \
+	}
+	rm -rf $(DEB_BUILDDIR)/runtest.bak $(DEB_BUILDDIR)/runtest.stamp \
+		$(DEB_BUILDDIR)/include/mk/config.mk $(DEB_BUILDDIR)/lib/ltp.pc \
+		$(DEB_BUILDDIR)/ltp-devel.spec $(DEB_BUILDDIR)/m4/Makefile \
+		$(DEB_BUILDDIR)/README.ltp-devel $(DEB_BUILDDIR)/include/config.h \
+		$(DEB_BUILDDIR)/testcases/realtime/m4/Makefile $(DEB_BUILDDIR)/execltp
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+DEB_MAKE_INVOKE = $(DEB_MAKE_ENVVARS) $(MAKE) $(if $(DEB_MAKE_MAKEFILE), -f $(DEB_MAKE_MAKEFILE),) -C $(DEB_BUILDDIR) DESTDIR=$(CURDIR)/debian/tmp/ $(DEB_MAKE_EXTRA_ARGS)
+
+DEB_MAKE_INSTALL_TARGET = install include-install lib-install
+DEB_MAKE_CLEAN_TARGET = clean ac-maintainer-clean
+DEB_FIXPERMS_EXCLUDE=create_link change_owner setuid_test
+DEB_DH_INSTALL_SOURCEDIR=$(CURDIR)/debian/tmp

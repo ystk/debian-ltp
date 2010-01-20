@@ -46,6 +46,7 @@ $trace_logic
 #-----------------------------------------------------------------------
 # Initialize local variables
 #-----------------------------------------------------------------------
+PATH=$PATH:$LTPTOOLS
 TC=${TC:=nfs04}
 TCbin=${TCbin:=`pwd`}
 TCtmp=${TCtmp:=/tmp/$TC$$}

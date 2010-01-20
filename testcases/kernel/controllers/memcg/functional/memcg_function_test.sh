@@ -23,6 +23,8 @@
 ##                                                                            ##
 ################################################################################
 
+PATH=$PATH:$LTPTOOLS
+
 cd $LTPROOT/testcases/bin
 export TCID="memcg_function_test"
 export TST_TOTAL=38

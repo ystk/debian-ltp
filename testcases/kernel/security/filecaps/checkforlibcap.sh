@@ -26,15 +26,9 @@ yesno=0
 if [ "$1" = "yesno" ]; then
 	yesno=1
 fi
-
-SETCAP=`which setcap`
-if [ -z "${SETCAP}" ]; then
-    ret=1
-else
-    ret=0
-fi
-
-if [ $ret -eq 0 ]; then
+SETCAP=/sbin/setcap
+ret=1
+if [ -x $SETCAP ]; then
 	#also test for -lcap
 	$CC -o check_simple_capset check_simple_capset.c -lcap \
          2>/dev/null

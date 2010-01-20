@@ -33,4 +33,6 @@ MAKE_TARGETS		:= $(patsubst $(abs_srcdir)/%.c,%.obj,$(wildcard $(abs_srcdir)/*.c
 $(MAKE_TARGETS): %.obj: %.o
 	mv "$^" "$@"
 
+INSTALL_MODE = $(if $(filter %ar01,$@), 0755, 0644)
+
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

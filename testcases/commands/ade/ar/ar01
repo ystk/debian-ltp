@@ -55,9 +55,7 @@ TCRESULT=0
 
 # Setup function
 setup() {
-  for i in $LIST;do
-    touch $i
-  done
+    :;
 }
 
 # Cleanup function
@@ -517,15 +515,16 @@ echo "-)19 SKIPPED due to binutils ar automatically adds a symbol."
 
 # CODE
 rm -rf $TCtmp/lib.a;cd $TCdat
-ar -cr $TCtmp/lib.a file0.in file2.in 
+cp -p file0.in file2.in $TCtmp
+ar -cr $TCtmp/lib.a $TCtmp/file0.in $TCtmp/file2.in 
 crtest
 File1time=`ar -tv $TCtmp/lib.a | grep file0.in | cut -f2 -d: | cut -f1 -d" "`
 File2time=`ar -tv $TCtmp/lib.a | grep file2.in | cut -f2 -d: | cut -f1 -d" "`
 
 #sleep 5
-touch -c -t 201503030303.55 file0.in
+touch -c -t 201503030303.55 $TCtmp/file0.in
 
-ar -ru $TCtmp/lib.a file0.in file2.in 2>&1 1>/dev/null
+ar -ru $TCtmp/lib.a $TCtmp/file0.in $TCtmp/file2.in 2>&1 1>/dev/null
 File1time1=`ar -tv $TCtmp/lib.a | grep file0.in | cut -f2 -d: | cut -f1 -d" "`
 File2time2=`ar -tv $TCtmp/lib.a | grep file2.in | cut -f2 -d: | cut -f1 -d" "`
 
@@ -542,8 +541,6 @@ else
     	TCRESULT=20
 	echo "FAIL - ar with -u flag failed"
 fi
-#Reset the timestamp on file0.in to current
-touch file0.in
  
 # This is the next assertion
 
@@ -605,6 +602,7 @@ fi
 rm -rf $TCtmp/lib.a;cd $TCdat
 ar -cr $TCtmp/lib.a file1.in file2.in file3.in
 crtest
+cd $TCtmp
 Count=`ar -xv $TCtmp/lib.a | wc -l`
 
 if [ $Count = '3' ]
@@ -622,7 +620,7 @@ fi
 rm -rf $TCtmp/lib.a;cd $TCdat
 ar -cr $TCtmp/lib.a file1.in file2.in file3.in
 crtest
-
+cd $TCtmp
 Count=`ar -xv $TCtmp/lib.a | wc -l` 
 
 if [ $Count -eq '3' ]
@@ -640,6 +638,7 @@ fi
 rm -rf $TCtmp/lib.a;cd $TCdat
 ar -cr $TCtmp/lib.a file1.in file2.in file3.in
 crtest
+cd $TCtmp
 Count=`ar -xv $TCtmp/lib.a file1.in | grep file | wc -l`
 
 if [ $Count = '1' ]
@@ -680,7 +679,8 @@ echo "-)26 SKIPPED UNDER PAN"
 
 # CODE
 
-rm -rf $TCtmp/lib.* 
+rm -rf $TCtmp/lib.* $TCtmp/*.stdout
+cd $TCdat
 
 ar -vr $TCtmp/lib.a $LIST >>$TCtmp/lib.a.stdout&
 while [ ! -s $TCtmp/lib.a ]
@@ -702,7 +702,8 @@ fi
 
 # CODE
 
-rm -rf $TCtmp/lib.* 
+rm -rf $TCtmp/lib.* $TCtmp/*.stdout
+cd $TCdat
 
 ar -vr $TCtmp/lib.a $LIST >>$TCtmp/lib.a.stdout&
 while [ ! -s $TCtmp/lib.a ]
@@ -724,7 +725,8 @@ fi
 
 # CODE
 
-rm -rf $TCtmp/lib.a;cd $TCdat $TCtmp/lib.a.stdout
+rm -rf $TCtmp/lib.a $TCtmp/lib.a.stdout
+cd $TCdat
 ar -rv $TCtmp/lib.a file1.in file2.in file3.in 2>&1 1>$TCtmp/lib.a.stdout
 rtest
 ar -rv $TCtmp/lib.a $LIST 2>&1 1>>$TCtmp/lib.a.stdout&
@@ -748,7 +750,8 @@ fi
 
 # CODE
 
-rm -rf $TCtmp/lib.a;cd $TCdat $TCtmp/lib.a.stdout
+rm -rf $TCtmp/lib.a $TCtmp/lib.a.stdout
+cd $TCdat
 ar -rv $TCtmp/lib.a file1.in file2.in file3.in 2>&1 1>$TCtmp/lib.a.stdout
 rtest
 ar -rv $TCtmp/lib.a $LIST 2>&1 1>>$TCtmp/lib.a.stdout&
@@ -773,7 +776,8 @@ fi
 
 # CODE
 
-rm -rf $TCtmp/lib.a;cd $TCdat *.stdout
+rm -rf $TCtmp/lib.a *.stdout
+cd $TCdat
 ar -rv $TCtmp/lib.a file1.in file2.in file3.in 2>&1 1>$TCtmp/lib.a.stdout
 rtest
 ar -rv $TCtmp/lib.a $LIST 2>&1 1>>$TCtmp/lib.a.stdout&

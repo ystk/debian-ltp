@@ -1,0 +1,24 @@
+usr/lib/ltp/bin/ltp-pan			usr/lib/ltp/tools
+usr/lib/ltp/bin/ltp-bump			usr/lib/ltp/tools
+usr/lib/ltp/bin/ltp-scanner		usr/lib/ltp/tools
+usr/lib/ltp/tools/gethost		usr/lib/ltp/tools
+usr/lib/ltp/tools/rand_lines	 	usr/lib/ltp/tools
+# usr/lib/ltp/tools/ltp_check		usr/lib/ltp/tools
+# usr/lib/ltp/tools/ltp_master		usr/lib/ltp/tools
+# usr/lib/ltp/tools/ltprun		usr/lib/ltp/tools
+# usr/lib/ltp/tools/ltpoutput		usr/lib/ltp/tools
+# usr/lib/ltp/tools/ltpoutput2		usr/lib/ltp/tools
+../../runalltests.sh		usr/lib/ltp/tools
+usr/lib/ltp/ver_linux		usr/lib/ltp/tools
+usr/lib/ltp/runltp		usr/lib/ltp/tools
+usr/lib/ltp/IDcheck.sh		usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/genload	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_brk 	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_brkloop	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_brkloopm	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_brkm	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_exit	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_flush	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_res	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_resm	usr/lib/ltp/tools
+usr/lib/ltp/testcases/bin/tst_kvercmp	usr/lib/ltp/tools

@@ -41,6 +41,9 @@
 #                                        cron job.
 #                Feb 28 2003 - Fixed   - Modified testcase to use functions.
 #
+
+PATH=$PATH:$LTPTOOLS
+
 # Function: 	chk_ifexists
 #
 # Description:  - Check if command required for this test exits.

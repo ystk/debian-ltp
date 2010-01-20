@@ -33,6 +33,7 @@
 #         o open a file and check the returned file descriptor.  #
 #           It should be greater than 3.                         #
 ##################################################################
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 

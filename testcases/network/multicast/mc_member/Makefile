@@ -26,4 +26,6 @@ include $(top_srcdir)/include/mk/env_pre.mk
 
 INSTALL_TARGETS		:= mc_member *ManyGroups
 
+INSTALL_MODE = $(if $(filter %ManyGroups,$@), 0644, 0755)
+
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

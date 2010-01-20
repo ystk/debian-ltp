@@ -29,11 +29,13 @@
 
 MAX_FILES=20
 CLEAR_SECS=30
-DIR="$TMPDIR/race"
+DIR=$(mktemp -dt "raceXXXXXXXX")
 
 execute_test()
 {
 [ -e $DIR ] || mkdir $DIR
+cd $LTPROOT/testcases/bin
+
 ./fs_racer_file_create.sh $DIR $MAX_FILES &
 ./fs_racer_file_create.sh $DIR $MAX_FILES &
 ./fs_racer_file_create.sh $DIR $MAX_FILES &
@@ -65,6 +67,8 @@ execute_test()
 ./fs_racer_file_rm.sh $DIR $MAX_FILES &
 ./fs_racer_file_rm.sh $DIR $MAX_FILES &
 ./fs_racer_file_rm.sh $DIR $MAX_FILES &
+
+cd -
 }
 
 
@@ -86,6 +90,7 @@ call_exit()
     killall fs_racer_file_symlink.sh 
     killall fs_racer_file_list.sh 
     killall fs_racer_file_concat.sh
+    [ -e "$DIR" ] && rm -rf "$DIR"
     exit 0
 }
 

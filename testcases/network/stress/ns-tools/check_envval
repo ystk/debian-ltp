@@ -42,6 +42,8 @@
 #trace_logic=${trace_logic:-"set -x"}
 $trace_logic
 
+PATH=$PATH:$LTPTOOLS
+
 . cmdlib.sh
 
 exists cut locale rsh

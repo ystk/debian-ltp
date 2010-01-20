@@ -51,13 +51,8 @@ init()
 	else
 		LTPTMP=$TMPBASE
 	fi
-	if [ -z "$LTPBIN" -a -z "$LTPROOT" ]
-	then
-		LTPBIN=./
-	else
-		LTPBIN=$LTPROOT/testcases/bin
-	fi
 
+  LTPBIN=$LTPTOOLS
 	
 	$LTPBIN/tst_resm TINFO "INIT: Inititalizing tests."
 

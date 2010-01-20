@@ -78,7 +78,7 @@ char *filenames[TEST_CASES];
 int expected_errno[TEST_CASES] = { 0, 0, ENOTDIR, EBADF, EINVAL, 0 };
 int flags[TEST_CASES] = { 0, 0, 0, 0, 9999, 0 };
 
-#if (defined __NR_fstatat64) && (__NR_fstatat64 != 0)
+#if (defined __NR_fstatat64) && (__NR_fstatat64 != -1)
 struct stat64 statbuf;
 #else
 struct stat statbuf;
@@ -86,13 +86,13 @@ struct stat statbuf;
 
 /* __NR_fstatat64 and __NR_fstatat64 if not defined are ALWAYS stubbed by
  *  linux_syscall_numbers.h Need to check for 0 to avoid testing with stubs */
-#if (defined __NR_fstatat64) && (__NR_fstatat64 != 0)
+#if (defined __NR_fstatat64) && (__NR_fstatat64 != -1)
 int myfstatat(int dirfd, const char *filename, struct stat64 *statbuf,
 	      int flags)
 {
 	return syscall(__NR_fstatat64, dirfd, filename, statbuf, flags);
 }
-#elif (defined __NR_newfstatat) && (__NR_newfstatat != 0)
+#elif (defined __NR_newfstatat) && (__NR_newfstatat != -1)
 int myfstatat(int dirfd, const char *filename, struct stat *statbuf, int flags)
 {
 	return syscall(__NR_newfstatat, dirfd, filename, statbuf, flags);
@@ -120,10 +120,10 @@ int main(int ac, char **av)
 
 	/* report failure if run with stubs */
 #ifdef __NR_fstatat64
-	if (__NR_fstatat64 == 0)
+	if (__NR_fstatat64 == -1)
 #endif
 #ifdef __NR_newfstatat
-		if (__NR_newfstatat == 0)
+		if (__NR_newfstatat == -1)
 #endif
 		{
 			tst_resm(TFAIL,

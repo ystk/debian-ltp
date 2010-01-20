@@ -72,6 +72,8 @@ char *av[];
 /*--------------------------------------------------------------------*/
 	local_flag = PASSED;
 
+	tst_tmpdir();
+
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
 		min = getdtablesize();	/* get number of files allowed open */
@@ -79,6 +81,7 @@ char *av[];
 		fildes = (int *)malloc((min + 10) * sizeof(int));
 		if (fildes == (int *)0) {
 			tst_resm(TBROK, "malloc error");
+			tst_rmdir();
 			tst_exit();
 		}
 
@@ -100,6 +103,7 @@ char *av[];
 						tst_resm(TFAIL,
 							 "got wrong descriptor number back: %d != %d",
 							 fildes[ifile], ifile);
+						tst_rmdir();
 						tst_exit();
 					}
 				}
@@ -128,6 +132,7 @@ char *av[];
 		}
 
 	}			/* end for */
+	tst_rmdir();
 	tst_exit();
 	return 0;
 }

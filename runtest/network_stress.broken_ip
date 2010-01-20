@@ -2,6 +2,8 @@
 # Stress test for TCP/IP protocol stack
 #
 
+#ALL: $RHOST $LHOST_HWADDRS $RHOST_HWADDRS
+
 # Broken IP packet
 broken_ip4-version broken_ip4-version
 broken_ip4-ihl broken_ip4-ihl

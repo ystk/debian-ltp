@@ -52,14 +52,22 @@ RECURSIVE_TARGETS		?= all install
 
 $(eval $(get_make_dirs))
 
-.PHONY: $(RECURSIVE_TARGETS) $(addprefix trunk-,$(RECURSIVE_TARGETS))
+.PHONY: $(RECURSIVE_TARGETS) $(addprefix trunk-,$(RECURSIVE_TARGETS)) $(foreach tgt,$(RECURSIVE_TARGETS),$(addprefix trunk-subdir-$(tgt)--,$(SUBDIRS)))
 
 $(SUBDIRS): %:
 	mkdir -m 00755 -p "$@"
 
+get_trunk_target = $(firstword $(subst --, ,$(patsubst trunk-subdir-%,%,$(1))))
+get_trunk_subdir = $(patsubst trunk-subdir-$(call get_trunk_target,$(1))--%,%,$(1))
+
+$(foreach tgt,$(RECURSIVE_TARGETS),$(addprefix trunk-subdir-$(tgt)--,$(SUBDIRS))): %:
+	mkdir -m 00755 -p "$(call get_trunk_subdir,$@)"
+	$(MAKE) -C $(call get_trunk_subdir,$@) -f "$(abs_srcdir)/$(call get_trunk_subdir,$@)/Makefile" $(call get_trunk_target,$@)
+
 $(MAKE_TARGETS): | $(MAKE_DEPS)
 
 trunk-all: $(MAKE_TARGETS)
+
 
 trunk-clean:: | $(SUBDIRS)
 	$(if $(strip $(CLEAN_TARGETS)),$(RM) -f $(CLEAN_TARGETS))
@@ -89,10 +97,7 @@ ifeq ($(strip $(SUBDIRS)),)
 	$(warning CURDIR is: $(CURDIR))
 	$(error SUBDIRS empty -- did you want generic_leaf_target instead?)
 else
-$(RECURSIVE_TARGETS): %: | $(SUBDIRS)
-	@set -e; for dir in $(SUBDIRS); do \
-	    $(MAKE) -C $$dir -f "$(abs_srcdir)/$$dir/Makefile" $@; \
-	done
+$(RECURSIVE_TARGETS): %: $(addprefix trunk-subdir-%--,$(SUBDIRS))
 endif
 
 # vim: syntax=make

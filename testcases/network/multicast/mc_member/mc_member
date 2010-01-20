@@ -39,7 +39,7 @@ $trace_logic
 
 TC=mc_member
 TCsrc=${TCsrc:-`pwd`}
-TCtmp=${TCtmp:-$TCsrc/$TC$$}
+TCtmp=${TCtmp:-/tmp/$TC$$}
 CLEANUP=${CLEANUP:-ON}
 
 LTPROOT=${LTPROOT:-"../../../../"}
@@ -51,7 +51,7 @@ TooManyGLIST=${TooManyGLIST:-$TCsrc/TooManyGroups}
 ERRFILE=${ERRFILE:-$TCtmp/errors}
 
 this_file=${0##*/}
-trap "interrupt_test" 2
+trap "interrupt_test" INT
 
 setup()
 {

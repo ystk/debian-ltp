@@ -37,6 +37,8 @@ unset LIBPATH
 #
 #***********************************************************************
 
+PATH=$PATH:$LTPTOOLS
+
 do_setup()
 {
     RHOST=${RHOST:-`hostname`}
@@ -100,7 +102,7 @@ interrupt_testcase()
 {
     tst_resm TINFO "Testcase interrupted - cleaning up"
     tst_resm TINFO "Killing background process if it is still running"
-    kill -9 $CHILDPID
+    kill -s KILL $CHILDPID
     end_testcase
 }
 

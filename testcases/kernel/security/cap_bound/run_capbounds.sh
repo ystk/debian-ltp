@@ -19,6 +19,8 @@
 ##                                                                            ##
 ################################################################################
 
+PATH=$PATH:$LTPTOOLS
+
 if tst_kvercmp 2 6 25 ; then
 	tst_resm TCONF "System kernel version is less than 2.6.25"
 	tst_resm TCONF "Cannot execute test"

@@ -29,6 +29,7 @@
 #        Do openlog() with LOG_PID option and see whether pid    #
 #        is logged with message.                                 #
 ##################################################################
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 

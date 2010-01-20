@@ -1,0 +1,778 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Curses::UI();
+use File::Temp();
+use diagnostics;
+
+use Carp ();
+local $SIG{__WARN__} = \&Carp::cluck;
+
+package LTPTests;
+use List::MoreUtils qw/any uniq/;
+
+my $runtest_dir="/usr/lib/ltp/runtest";
+#my $runtest_dir="runtest";
+my %static_env = (
+    LTPRESULTS => "/var/cache/ltp/results",
+    LTPROOT => "/usr/lib/ltp",
+    TOOLSDIR => "/usr/lib/ltp/tools",
+    LTPTOOLS => "/usr/lib/ltp/tools",
+    PATH => "$ENV{PATH}:/usr/lib/ltp/testcases/bin",
+    TMP => $ENV{TMP} // $ENV{TMPDIR} // "/tmp",
+    TMPDIR => $ENV{TMP} // $ENV{TMPDIR} // "/tmp",
+    TMPFILE => undef,
+    );
+my @test_data = ();
+
+sub shell_quote
+{
+    my $arg=shift;
+    $arg =~ s/'/'\\''/;
+    return "'$arg'";
+}
+
+sub to_number
+{
+    my $arg=shift;
+    return $arg if $arg =~ /^\d+$/;
+    return 0;
+}
+
+sub execute_tests
+{
+    my ($used_tests, $environment, $setup, $teardown) = @_;
+    my $panopts="";
+    my $tdir;
+    for(keys %$environment) {
+        if (/^\$/) {
+            my $value=$environment->{$_};
+            s/^\$//;
+            $ENV{$_}=$value;
+        }
+    }
+    for(keys %static_env) {
+        my $value=$static_env{$_};
+        $ENV{$_}=$value;
+    }
+    if(($environment->{output} // "") ne "") {
+        $tdir=File::Temp::tempdir(CLEANUP => 1);
+        $panopts.=" -o ".shell_quote($environment->{output})." -O ".shell_quote($tdir);
+    }
+
+    if(!$environment->{fulloutput}) {
+        $panopts.=" -q ";
+    }
+
+    if(($environment->{failfile} // "") ne "") {
+        my $ff=$environment->{failfile};
+        my $out=$environment->{output}//"";
+        $out =~ s/^.*\///;
+        $ff =~ s/%s/$out/;
+        my $now = localtime;
+        $ff =~ s/%d/$now/;
+        $panopts.=" -C ".shell_quote($ff);
+    }
+
+    if(($environment->{logfile} // "") ne "") {
+        my $ff=$environment->{logfile};
+        my $out=$environment->{output}//"";
+        $out =~ s/^.*\///;
+        $ff =~ s/%s/$out/;
+        my $now = localtime;
+        $ff =~ s/%d/$now/;
+        $panopts.=" -l ".shell_quote($ff);
+    }
+
+    my $count;
+    if(($environment->{count} // "") ne "") {
+        $count=$environment->{count};
+        if($count =~ /^(\d)l$/) {
+            $count=$1*@$used_tests;
+        }
+        $count=to_number($count);
+    }
+    if($environment->{random}) {
+        $count = $count // scalar @$used_tests;
+    }
+
+    if(!($environment->{random})) {
+        $panopts.=" -S";
+    }
+
+    if(defined($count)) {
+        $panopts.=" -s ".$count;
+    }
+
+    if(($environment->{time} // "") ne "") {
+        return if !$environment->{time} =~ /[0-9]+[hmsd]?/;
+        $panopts.=" -t ".$environment->{time};
+    }
+
+    if(($environment->{parallel} // "") ne "") {
+        $panopts.=" -x ".to_number ($environment->{parallel} // 0);
+    }
+
+    my $ft=new File::Temp(TEMPLATE => "/tmp/runtestXXXXXXXXX");
+    my $zoo=new File::Temp(TEMPLATE => "/tmp/zoo$$.XXXXXXXXX");
+    local $,="\n";
+    print $ft map { "$_->{id} $_->{command}" } @$used_tests;
+    $ft->flush;
+    system "@$setup";
+    system '${LTPTOOLS}/ltp-pan -p -n $$ -a '.$zoo->filename.' -f '.$ft->filename.$panopts;
+    system "@$teardown";
+    File::Path::rmtree $tdir if defined($tdir);
+}
+
+my %testsuites =();
+my %test_hash= ();
+sub load_file
+{
+    my ($file)=@_;
+    my $num=0;
+    open(FILE, "<$file");
+    my $name="$file";
+    my $ts_desc={ selected => 0, tests => [] };
+    my $allvars = [];
+    my $allsetup = [];
+
+    my $last;
+    my $comment=sub {
+        if($1 =~ /DESCRIPTION:(.*)/) {
+            $ts_desc->{description}=$1;
+            $last=\$ts_desc->{description};
+        } elsif ($1 =~ /ALL:(.*)/) {
+            push @$allvars, grep m/./, (split qr/ +/, $1);
+        } elsif ($1 =~ /SETUP:(.*)/) {
+            push @$allsetup, grep m/./, (split qr/ +/, $1);
+        } elsif ($1 eq "") {
+            undef $last;
+        } elsif(defined $last) {
+            $$last.="\n". $1;
+        }
+
+    };
+    while(<FILE>) {
+        if (/^#(.*)/) {
+            $comment-> ($1);
+            next;
+        }
+        next unless /^([^[:space:]]+)[[:space:]]+(.*)/;
+        $comment-> ("");
+        if(exists($test_hash{"$1 $2"})) {
+            next if exists $test_hash{"$1 $2"}->{files}->{$name};
+            push @{$ts_desc->{tests}}, $test_hash{"$1 $2"};
+            $test_hash{"$1 $2"}->{files}->{$name}=undef;
+            $ts_desc->{selected}++ if($test_hash{"$1 $2"}->{selected});
+        } else {
+            push(@test_data, { id => $1, command => $2,
+                 files => {$name => undef}});
+            my $id="$1 $2";
+            $test_data[$#test_data]->{vars}=[(grep { /^\$(.*)/; !exists($static_env{$1}) } ( @$allvars, $2 =~ /\$[[:alpha:]][[:alnum:]_]*/g ))];
+            $test_data[$#test_data]->{setup}=$allsetup;
+            push @{$ts_desc->{tests}}, \%{$test_data[$#test_data]};
+            $test_hash{$id}=\%{$test_data[$#test_data]};
+            $testsuites{"<ALL>"}->{count}++;
+        }
+        $num++;
+    }
+    close (FILE);
+    $ts_desc->{count}=$num;
+    $testsuites{$name}=$ts_desc;
+}
+
+sub load_available
+{
+    $testsuites{"<ALL>"}={selected => 0, count => 0, tests => \@test_data};
+
+    my @files;
+    opendir(DIR, $runtest_dir) || die("Couldn't open directory $runtest_dir");
+    @files=readdir(DIR);
+    closedir(DIR);
+
+    foreach(@files) {
+        next if (/^\./);
+        load_file("$runtest_dir/$_");
+    }
+
+}
+
+sub flatten
+{
+    return map { (ref($_) eq "ARRAY") ? flatten(@$_) : $_ } @_;
+}
+
+sub needed_vars
+{
+    my ($ts_list)=@_;
+    return uniq(flatten(map $_->{vars}, @$ts_list));
+}
+
+sub setup_scripts
+{
+    my ($ts_list)=@_;
+    return uniq(flatten(map $_->{setup}, @$ts_list));
+}
+
+sub tests_needing_vars
+{
+    my ($tests, @vars)=@_;
+    my %vars_hash=(map { ($_ => undef) } @vars);
+    return grep { any { exists($vars_hash{$_}) } @{$_->{vars}} } @$tests;
+}
+
+load_available;
+
+package Layout::Proportional;
+
+use Curses::UI::Container;
+
+our @ISA=qw/Curses::UI::Container/;
+
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new( @_, -layoutorder => [] );
+    return $self;
+}
+
+sub add {
+    my $self=shift;
+    my $ret=$self->SUPER::add(@_);
+    push @{$self->{-layoutorder}}, $self->{-object2id}->{$ret};
+    return $ret;
+}
+
+sub layout {
+    my $self = shift;
+    $self->Curses::UI::Widget::layout();
+
+    my $size=($self->{-vertical} ? "height" : "width");
+    my $coord=($self->{-vertical} ? "y" : "x");
+    my $ot_size=($self->{-vertical} ? "width" : "height");
+    my $ot_sz=($self->{-vertical} ? "w" : "h");
+    my $ot_coord=($self->{-vertical} ? "x" : "y");
+    my $padding=($self->{-vertical} ?
+                 sub { my $obj=shift; return ($obj->{-padtop}//0)+($obj->{-padbottom}//0); } :
+                 sub { my $obj=shift; return ($obj->{-padleft}//0)+($obj->{-padright}//0); });
+    my $total_min=0;
+    my $total_mult=0.0;
+    my %sizes= ( height => $self->canvasheight(), width => $self->canvaswidth() );
+    foreach(@{$self->{-layoutorder}}) {
+        my $obj=$self->{-id2object}->{$_};
+# NOTE: if -min-$size is less than what's needed to accommodate the widget, you'll likely hit screen too small.
+        $total_min += $obj->{"-min-$size"} if $obj->{"-min-$size"};
+        $total_mult += $obj->{"-mult-$size"} if $obj->{"-mult-$size"};
+    }
+    my $excess = $sizes{$size}-$total_min;
+    my $ratio=($total_mult==0 ? 0 : $excess/$total_mult);
+
+    my $cur=0;
+    foreach(@{$self->{-layoutorder}}) {
+        my $obj=$self->{-id2object}->{$_};
+        $obj->{-$coord}=$cur;
+        $obj->{-$ot_coord}=0;
+        $obj->{-$size}=int (($obj->{"-min-$size"} // 0) + ($obj->{"-mult-$size"} // 0)*$ratio);
+        $obj->{-$size} = 0 if $obj->{-$size} < 0;
+        $obj->{-$ot_size} = $self->{-$ot_size};
+        $obj->{-parent}=$self;
+        $obj->layout();
+        $cur += $obj->{-$size};
+        $self->{-$ot_sz} = $obj->{-$ot_sz}
+        if ($obj->{-$ot_sz} > $self->{-$ot_sz});
+        $obj->intellidraw();
+    }
+    return $self;
+}
+
+$INC{"Layout/Proportional.pm"}="";
+
+package ListBox::MultiColumn;
+
+use Curses::UI::Listbox;
+
+our @ISA=qw/Curses::UI::Listbox/;
+
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new(
+        -colwidth => [],
+        "-col-designator" => [],
+        @_
+        );
+    return $self;
+}
+
+sub getcolwidth
+{
+    my ($self, $col) = @_;
+    return $self->{-colwidth}->[$col] if $self->{-colwidth}->[$col];
+    return 10;
+}
+
+sub getlabel {
+    my ($self, $i) = @_;
+    my $val = $self->values()->[$i];
+    my @disp=();
+    if(ref($val) eq "ARRAY") {
+        for my $idx (0..$#$val-1) {
+            my $len=$self->getcolwidth($idx);
+            push (@disp, $$val[$idx]);
+        }
+        push (@disp, $$val[$#$val]);
+    } elsif(ref($val) eq "HASH") {
+        my $cd=$self->{"-col-designator"};
+        return "" unless $cd;
+        for my $idx (0..$#$cd-1) {
+            my $len=$self->getcolwidth($idx);
+            push (@disp, $val->{$cd->[$idx]});
+        }
+        push (@disp, $val->{$cd->[$#$cd]});
+    } else {
+        @disp=($self->SUPER::getlabel($i));
+    }
+    @disp=($self->{"-col-formatter"} ?
+           $self->{"-col-formatter"}->(@disp) :
+           @disp);
+    for (0..$#disp-1) {
+            my $len=$self->getcolwidth($_);
+            $disp[$_] = sprintf("%-${len}.${len}s", $disp[$_]);
+    }
+    return join("|", @disp);
+}
+
+$INC{"ListBox/MultiColumn.pm"}="";
+
+package Container::Paged;
+
+our @ISA=qw/Curses::UI::Container/;
+
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new(
+        @_,
+        -pageno => 0,
+        -pagestart => [0],
+        -pageend => undef,
+        -layoutorder => [],
+        -drawdisabled => 0
+        );
+    $self->set_binding(\&page_up, Curses::KEY_PPAGE);
+    $self->set_binding(\&page_down, Curses::KEY_NPAGE);
+    $self->{-morelabel}=$self->SUPER::add(undef, "Label",
+                                      -text => "-- more (PgDn/PgUp) --"
+        );
+    return $self;
+}
+
+sub add {
+    my $self=shift;
+    my $ret=$self->SUPER::add(@_);
+    push @{$self->{-layoutorder}}, $ret;
+    return $ret;
+}
+
+sub page_up {
+    my $self = shift;
+    return if $self->{-pageno}<=0;
+    $self->{-pageno}--;
+    $self->{-canvasscr}->erase();
+    $self->layout();
+    $self->intellidraw();
+}
+
+sub page_down {
+    my $self = shift;
+    return if $self->{-pageend}>$#{$self->{-layoutorder}};
+    $self->{-pageno}++;
+    $self->{-pagestart}->[$self->{-pageno}] = $self->{-pageend};
+    $self->{-canvasscr}->erase();
+    $self->layout();
+    $self->intellidraw();
+}
+
+sub layout {
+    my $self = shift;
+    $self->Curses::UI::Widget::layout();
+
+    my $line = 0;
+    my $saved_screen_too_small = $Curses::UI::screen_too_small;
+    my $last_widget = $#{$self->{-layoutorder}}+1;
+    my $page_start = $self->{-pagestart}->[$self->{-pageno}];
+    for my $widget_idx ($page_start..$#{$self->{-layoutorder}}) {
+        my $widget=$self->{-layoutorder}->[$widget_idx];
+        $widget->{-y}=$line;
+        $widget->show();
+        $widget->layout();
+
+        if($Curses::UI::screen_too_small != $saved_screen_too_small) {
+            $last_widget = $widget_idx;
+            last;
+        }
+        $line += $widget->height();
+    }
+
+    if ($last_widget > $page_start+1 && $last_widget <= $#{$self->{-layoutorder}} && $line>=$self->{-h}) {
+        $last_widget--;
+    }
+
+    $self->{-pageend}=$last_widget;
+    $Curses::UI::screen_too_small = $saved_screen_too_small;
+
+    my @label_arr=();
+    if ($last_widget <= $#{$self->{-layoutorder}}) {
+        $self->{-morelabel}->{-x}=($self->{-w}-$self->{-morelabel}->{-w})/2;
+        $self->{-morelabel}->{-y}=$self->{-h}-1;
+        $self->{-morelabel}->layout;
+        push @label_arr, $self->{-morelabel};
+    }
+
+    for (@{$self->{-layoutorder}}[0..$page_start-1]) {
+        $_->hide();
+    }
+
+    if ($last_widget >= 0 && $last_widget<=$#{$self->{-layoutorder}}) {
+        for (@{$self->{-layoutorder}}[$last_widget..$#{$self->{-layoutorder}}]) {
+            $_->hide();
+        }
+    }
+
+    $Curses::UI::screen_too_small++
+        if($last_widget > 0 && $page_start==$last_widget);
+
+    $self->set_draworder(map $self->{-object2id}->{$_}, @label_arr, @{$self->{-layoutorder}}[$page_start..$last_widget-1]);
+    $self->focus($self->{-layoutorder}->[$page_start])
+        if defined $self->{-layoutorder}->[$page_start];
+    return $self;
+}
+
+sub disable_draw
+{
+    shift()->{-drawdisabled}++;
+}
+
+sub enable_draw
+{
+    my $self=shift;
+    $self->{-drawdisabled}--;
+    $self->intellidraw;
+}
+
+sub draw
+{
+    my $self=shift;
+    return $self->SUPER::draw(@_)
+        unless $self->{-drawdisabled};
+}
+
+sub focus {
+    my $self=shift;
+    my $page_start=$self->{-pagestart}->[$self->{-pageno}];
+    my $last_widget=$self->{-pageend};
+    my $last_draworder=$self->{-draworder};
+
+    return $self->SUPER::focus(@_) unless $#{$self->{-draworder}}>=0;
+    $self->disable_draw;
+
+    $self->set_draworder(grep ($self->{-draworder}->[-1] ne $_, map $self->{-object2id}->{$_}, @{$self->{-layoutorder}}), $self->{-draworder}->[-1]);
+    $self->SUPER::focus(@_);
+
+    my $new_focus=$self->{-object2id}->{$self->getfocusobj};
+    my $i=0;
+    for my $j (0..$#{$self->{-layoutorder}}) {
+        $i=$j;
+        last if $self->{-object2id}->{$self->{-layoutorder}->[$i]} eq $new_focus;
+    }
+
+    if ($i>=$page_start && $i<$last_widget) {
+        $self->set_draworder(grep ($self->{-draworder}->[-1] ne $_, @$last_draworder), $self->{-draworder}->[-1]);
+        $self->enable_draw;
+        return;
+    }
+
+    if($i>=$last_widget) {
+        while($i>=$self->{-pageend}) {
+            $self->page_down;
+        }
+    } else {
+        while($i<$self->{-pagestart}->[$self->{-pageno}]) {
+            $self->page_up;
+        }
+    }
+    $self->enable_draw;
+    $self->focus(@_);
+
+}
+
+$INC{"Container/Paged.pm"}="";
+
+package main;
+use List::MoreUtils qw/any/;
+
+#######
+# TUI #
+#######
+
+my $cui = new Curses::UI (
+    -clear_on_exit => 1
+);
+my $tc_list;
+my $ts_list;
+my $win;
+
+my @opt_template = (
+    simple_text(label => "Output file", name => "output"),
+    simple_text(label => "Log file", name => "logfile"),
+    simple_text(label => "Failed command file", name => "failfile"),
+    simple_text(label => "Running time", name => "time", validator => '/^\d*[hdms]?$/'),
+    simple_text(label => "Parallel tests", name => "parallel", validator => '/^\d*$/'),
+    simple_check(label => "Random tests", name => "random"),
+    simple_check(label => "Full Output", name => "fulloutput"),
+    simple_text(label => "Test count", name => "count", validator => '/^\d*l?$/'),
+    );
+
+my %options =( failfile => "/var/tmp/LTP_RUN_ON_%d.failed",
+               logfile => "/var/tmp/LTP_RUN_ON_%d.log" );
+
+sub simple_text {
+    my %params=@_;
+    return { label => $params{label}, name => $params{name},
+             create => sub {
+                 my ($parent, $data, @params) = @_;
+                 @params=(@params, -regexp => $params{validator}) if exists $params{validator};
+                 my $lab=$parent->add(undef, "TextEntry", @params);
+                 $lab->text($data) if defined $data;
+                 return $lab;
+             },
+             get => sub { return shift()->get(); }
+    };
+
+}
+
+sub simple_check {
+    my %params=@_;
+    return { label => $params{label}, name => $params{name},
+             create => sub {
+                 my ($parent, $data, @params) = @_;
+                 my $lab=$parent->add(undef, "Checkbox", @params);
+                 $lab->check() if $data;
+                 return $lab;
+             },
+             get => sub { return shift()->get(); }
+    };
+
+}
+
+sub show_opt_dialog
+{
+    options_dialog([@opt_template, map {
+        +{
+            label => $_, name => $_,
+            create => sub {
+                my ($parent, $data, @params) = @_;
+                my $lab=$parent->add(undef, "TextEntry", @params);
+                $lab->text($data) if defined $data;
+                return $lab;
+            },
+            get => sub { return shift()->get(); }
+        }
+                    } LTPTests::needed_vars [grep { $_->{selected} } @test_data]], \%options);
+}
+
+sub execute_tests
+{
+    my $selected_tests=[grep { $_->{selected} } @test_data];
+    my @needed_vars=LTPTests::needed_vars $selected_tests;
+    my @unsatisfied_tests=LTPTests::tests_needing_vars $selected_tests, (grep !$options{$_}, @needed_vars);
+    if(@unsatisfied_tests) {
+        my $response=$cui->dialog(
+            -message => "You have sellected tests that need setting some variables. Would you like to set them now?",
+            -buttons => [
+                 {-label => "Show the options dialog", -value => 0},
+                 {-label => "Don't run those tests", -value => 1},
+                 {-label => "Cancel", -value => 2}
+            ],
+            -title => "Unset variables"
+            );
+        return if($response == 2);
+        if($response==0) {
+            show_opt_dialog;
+        } else { # filter tests
+            $selected_tests=[grep { !any { !$options{$_} } LTPTests::needed_vars [$_] } @$selected_tests ];
+        }
+    }
+    my @setups = LTPTests::setup_scripts $selected_tests;
+    $cui->leave_curses();
+    LTPTests::execute_tests($selected_tests, \%options, ["clear; echo Running LTP Tests; ", map { "$_ setup;" } @setups], [map { "$_ teardown;" } @setups]);
+    $cui->reset_curses();
+}
+
+my $main_menu = [
+    { -label => "Load", -value => sub {
+        my $file=$cui->loadfilebrowser();
+        LTPTests::load_file $file if defined $file;
+        $ts_list->values([sort keys (%testsuites)]);
+      } },
+    { -label => "Execute", -value => \&execute_tests },
+    { -label => "Options", -value => \&show_opt_dialog },
+    { -label => "Exit", -value => sub { exit(0) } }
+];
+
+sub update_tc_list
+{
+    my $v=$ts_list->get_active_value();
+    $tc_list->values($testsuites{$v}->{tests} );
+    my $seh=$tc_list->{-onchange};
+    $tc_list->onChange(undef);
+    $tc_list->set_selection(grep { $tc_list->{-values}->[$_]->{selected} } (0..$#{$tc_list->{-values}}));
+    $tc_list->onChange($seh);
+    $tc_list->intellidraw();
+}
+
+sub update_tc_selection
+{
+    my @sel=$tc_list->get();
+    for(@{$tc_list->{-values}}){
+         if($_->{selected}) {
+            $_->{selected}=0;
+            for(keys %{$_->{files}}) {
+                $testsuites{$_}->{selected}--;
+            }
+            $testsuites{"<ALL>"}->{selected}--;
+         }
+    }
+    foreach (@sel) {
+        if(!$_->{selected}) {
+            $_->{selected}=1;
+            for(keys %{$_->{files}}) {
+                $testsuites{$_}->{selected}++;
+            }
+            $testsuites{"<ALL>"}->{selected}++;
+        }
+    }
+    $ts_list->intellidraw();
+}
+
+sub check_ts
+{
+    update_tc_list();
+    my $seh=$tc_list->{-onchange};
+    $tc_list->onChange(undef);
+    $tc_list->set_selection((0..$#{$tc_list->{-values}}));
+    $tc_list->onChange($seh);
+    $seh->($tc_list);
+    $tc_list->intellidraw();
+}
+
+sub uncheck_ts
+{
+    update_tc_list();
+    $tc_list->clear_selection();
+    update_tc_selection(); # clear_selection doesn't call -onchange callback
+    $tc_list->intellidraw();
+}
+
+sub toggle_ts
+{
+    my $ts=$testsuites{$ts_list->get_active_value()};
+    if($ts->{count}>$ts->{selected}) {
+        check_ts();
+    } else {
+        uncheck_ts();
+    }
+}
+
+sub options_dialog
+{
+    my ($template, $options)=@_;
+
+    my $dialog=$cui->add(undef, "Window");
+    my $dialogid=$cui->{-object2id}->{$dialog};
+    my $vbox = $dialog->add(undef, "Layout::Proportional",
+                            -vertical => 1);
+    my $opts_container = $vbox->add(undef, "Container::Paged", "-mult-height" => 1, -releasefocus => 1);
+
+    my $labelwidth=20;
+
+    my @widgets=();
+    for(@$template) {
+        my $line = $opts_container->add(undef, "Layout::Proportional",
+                                        -vertical => 0, -height => 0,
+                                        -releasefocus => 1);
+        my $label=$line->add(undef, "Label", -text => $_->{label},
+                             "-min-width" => $labelwidth,
+                             -releasefocus => 1);
+        push @widgets, $_->{create}->($line, $options->{$_->{name}}, "-mult-width" => 1);
+    }
+
+    $vbox->add(undef, "Buttonbox", "-min-height" => 3, -buttons =>[
+                   { -label => "Ok", -onpress => sub { $dialog->loose_focus; } }
+               ], -releasefocus => 1);
+
+    $dialog->layout();
+
+# run the dialog and wait for completion
+    $dialog->modalfocus;
+
+    for(@$template) {
+        $options->{$_->{name}}=$_->{get}->(shift(@widgets));
+    }
+
+    $cui->delete($dialogid);
+    $cui->root->focus(undef, 1);
+}
+
+$win = $cui->add("win", "Window", -padtop => 1);
+
+$cui->add (
+    "menu", "Menubar",
+    -menu => [ { -label => "File", -submenu=>$main_menu } ]
+    );
+
+my $cont=$win->add(
+    "layout", "Layout::Proportional", -vertical => 0, -border => 1
+    );
+
+$ts_list=$cont->add (
+    "lb", "ListBox::MultiColumn",
+    -values => [sort keys (%testsuites)],
+    -vscrollbar => "right",
+#    -padtop => 2, -padleft => 2,
+#    -padright => 2, -padbottom => 2,
+    "-mult-width" => 1, -border => 1,
+    -onselchange => \&update_tc_list,
+    "-col-formatter" => sub {
+        my $tmp=$testsuites{$_[0]} // { selected => 0, count => 1 };
+        my $pref;
+        if($tmp->{selected}==0) {
+            $pref='  ';
+        } elsif($tmp->{selected}<$tmp->{count}) {
+            $pref='x ';
+        } else {
+            $pref='X ';
+        }
+        $_[0]=~s/^(.*\/)//;
+        $_[0]=$pref.$_[0];
+        return @_ }
+    );
+
+$tc_list=$cont->add (
+    "lb2", "ListBox::MultiColumn",
+    -values => \@test_data,
+    "-col-designator" => ["id", "command"],
+    -vscrollbar => "right",
+#    -padtop => 2, -padleft => 2,
+#    -padright => 2, -padbottom => 2,
+    "-mult-width" => 2, -border => 1,
+    -multi => 1,
+    -onchange => \&update_tc_selection
+    );
+
+$ts_list->set_routine('option-check', \&check_ts);
+$ts_list->set_routine('option-uncheck', \&uncheck_ts);
+$ts_list->set_routine('option-select', \&toggle_ts);
+
+$cui->set_binding( sub{ $cui->focus('menu') }, Curses::KEY_F(10) );
+
+$cui->layout();
+$ts_list->focus();
+$cui->mainloop();

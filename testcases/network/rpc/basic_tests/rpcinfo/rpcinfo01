@@ -129,7 +129,7 @@ rpcinfo -b $UPNUM $UVNUM &
 sleep 5
 [ $? -eq 0 ] || end_testcase "rpcinfo -b <prog num> <ver num> - failed"
 PID=$!
-kill -9 $PID > /dev/null 2>&1
+kill -s KILL $PID > /dev/null 2>&1
 PID=0
 
 # -d option
@@ -144,7 +144,7 @@ if [ $? = 1 ]; then
     rpcinfo -p | grep 100002 | wc -l | grep "1" > /dev/null
     [ $? = 0 ] || end_testcase "rpcinfo -d <prog num> <ver num> - failed"
     RUSERSD_PID=`ps -ewf | grep rusersd | grep -v grep | awk '{print $2}'`
-    kill -9 $RUSERSD_PID > /dev/null 2>&1
+    kill -s KILL $RUSERSD_PID > /dev/null 2>&1
   else
     echo "Could not start rusersd daemon...skipping -d option test"
   fi
@@ -250,7 +250,7 @@ do_cleanup()
     $trace_logic
 
     if [ "$PID" != 0 ]; then 
-      kill -9 $PID
+      kill -s KILL $PID
     fi   
     rm -f $TCtmp/rpc_out
 }

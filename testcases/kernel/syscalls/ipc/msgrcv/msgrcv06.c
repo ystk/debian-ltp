@@ -92,6 +92,7 @@ int main(int ac, char **av)
 {
 	int lc;			/* loop counter */
 	char *msg;		/* message returned from parse_opts */
+	int status;
 
 	/* parse standard options */
 	if ((msg = parse_opts(ac, av, (option_t *) NULL, NULL)) != (char *)NULL) {
@@ -160,7 +161,14 @@ int main(int ac, char **av)
 			/* remove the queue */
 			rm_queue(msg_q_1);
 
-			waitpid(c_pid, NULL, 0);
+			waitpid(c_pid, &status, 0);
+
+			if(WIFEXITED(status) && WEXITSTATUS(status)==0)
+				tst_resm(TPASS, "Child reported success");
+			else
+				tst_resm(TFAIL, "Child reported failure");
+
+			cleanup();
 		}
 	}
 
@@ -205,7 +213,7 @@ void do_child()
 	/* if it exists, remove the message queue that was created */
 	rm_queue(msg_q_1);
 
-	exit(0);
+	tst_exit();
 }
 
 #ifdef UCLINUX

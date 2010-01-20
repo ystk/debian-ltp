@@ -39,25 +39,27 @@ unset LIBPATH
 #trace_logic=${trace_logic:-"set -x"}
 $trace_logic
 
+PATH=$PATH:$LTPTOOLS
+
 if [ -z $LTPBIN ]; then
   PATH=../../../bin/:./:$PATH
 fi
 TC=mc_opts
-TCtmp=${TCtmp:-$LTPROOT/bin/$TC$$}
+TCtmp=${TCtmp:-/tmp/$TC$$}
 CLEANUP=${CLEANUP:-ON}
 EXECUTABLES=${EXECUTABLES:-"opts opts_e"}
 NUMLOOPS=${NUMLOOPS:-10}
 IPADDR=${IPADDR:-$("$LTPROOT/tools/gethost" `hostname`| grep address |awk '{ print $2 }')}
 
 this_file=${0##*/}
-trap "interrupt_test" 2
+trap "interrupt_test" INT
 
 setup()
 {
   mkdir -p $TCtmp
   for i in $EXECUTABLES
   do
-    install -m 0755 "$LTPROOT/$i" "$TCtmp/."
+    install -m 0755 "$LTPROOT/testcases/bin/$i" "$TCtmp/."
   done
 }
 

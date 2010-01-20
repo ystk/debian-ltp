@@ -36,6 +36,8 @@ $(filter-out sched_datafile,$(MAKE_TARGETS)): %: %.o sched.o
 
 MAKE_TARGETS		+= sched_datafile
 
+INSTALL_MODE = $(if $(filter %sched_datafile,$@), 0644, 0755)
+
 sched_datafile:
 	"$(top_srcdir)/tools/make-file.sh" "$@" 1200010
 

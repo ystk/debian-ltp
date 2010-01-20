@@ -29,6 +29,8 @@ LDLIBS			+= -lpthread
 
 INSTALL_TARGETS		:= data run_sched_cliserv.sh
 
+INSTALL_MODE = $(if $(filter %data,$@), 0644, 0755)
+
 MAKE_TARGETS		:= pthcli pthserv
 
 $(MAKE_TARGETS): %: %.o readline.o writen.o

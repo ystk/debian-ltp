@@ -160,7 +160,7 @@ static void runtest(void)
 		if ((child = fork()) == 0) {
 			fd = open(filename, O_RDWR);
 			if (fd < 0) {
-				tst_resm(TBROK, "\tTest[%d]: error %d openning %s.", i, errno, filename);
+				tst_resm(TBROK|TERRNO, "\tTest[%d]: error openning %s.", i, filename);
 				tst_exit();
 			}
 			dotest(nchild, i, fd);

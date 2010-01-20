@@ -30,3 +30,5 @@ INSTALL_TARGETS		:= *.sh
 LDLIBS			+= -lm
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk
+
+$(MAKE_TARGETS): %: | $(LIB)

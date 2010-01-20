@@ -38,6 +38,8 @@
 # 
 # Return:       - zero on success.
 #               - non-zero on failure.
+PATH=$PATH:$LTPTOOLS
+
 chk_ifexists()
 {
     RC=0

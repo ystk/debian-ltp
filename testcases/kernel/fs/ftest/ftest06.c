@@ -46,8 +46,9 @@
  *
  */
 
-#define _LARGEFILE64_SOURCE 1
-#include <stdio.h>
+#define  _LARGEFILE64_SOURCE 1
+#define _GNU_SOURCE
+#include <stdio.h>		/* needed by testhead.h		*/
 #include <sys/types.h>
 #include <sys/param.h>
 #include <fcntl.h>
@@ -89,19 +90,22 @@ static int nchild;
 static int parent_pid;
 static int pidlist[MAXCHILD];
 
-static char homedir[MAXPATHLEN];
-static char dirname[MAXPATHLEN];
-static char tmpname[MAXPATHLEN];
+static char* homedir;
+static char* dirname;
 static int dirlen;
-static int mnt = 0;
-static char startdir[MAXPATHLEN], mntpoint[MAXPATHLEN];
-static char *partition;
 static char *cwd;
 static char *fstyp;
 
+#define SUCCEED_OR_DIE(syscall, message, ...)														\
+	(errno = 0,																														\
+		({int ret=syscall(__VA_ARGS__);																			\
+			if(ret==-1)																												\
+				tst_brkm(TBROK, cleanup, message, __VA_ARGS__, strerror(errno)); \
+			ret;}))
+
 int main(int ac, char *av[])
 {
-	int pid, child, status, count, k, j;
+	int child, status, count, k, j;
 	char name[3];
 
         int lc;
@@ -126,43 +130,25 @@ int main(int ac, char *av[])
 		tst_exit();
 	}
 
+	tst_tmpdir();
+
 	/* use the default values for run conditions */
+
+	cwd = get_current_dir_name();
+	asprintf(&dirname, "%s/ftest06", cwd);
+	dirlen = strlen(dirname);
+	asprintf(&homedir, "%s/ftest06h", cwd);
+
+	SUCCEED_OR_DIE(mkdir, "mkdir(%s, %d) failed: %s", dirname, 0755);
+	SUCCEED_OR_DIE(mkdir, "mkdir(%s, %d) failed: %s", homedir, 0755);
+	SUCCEED_OR_DIE(chdir, "chdir(%s) failed: %s", dirname);
+	SUCCEED_OR_DIE(chdir, "chdir(%s) failed: %s", homedir);
+	SUCCEED_OR_DIE(chdir, "chdir(%s) failed: %s", dirname);
+
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
 		local_flag = PASSED;
-		/*
-		 * Make a directory to do this in; ignore error if already exists.
-		 */
 		parent_pid = getpid();
-		tst_tmpdir();
-
-		if (!startdir[0]) {
-			if (getcwd(startdir, MAXPATHLEN) == NULL) {
-				tst_resm(TFAIL,"getcwd failed");
-				tst_exit();
-			}
-		}
-		cwd = startdir;
-		strcat(dirname, cwd);
-		sprintf(tmpname, "/ftest06.%d", getpid());
-		strcat(dirname, tmpname);
-		strcat(homedir, cwd);
-		sprintf(tmpname, "/ftest06h.%d", getpid());
-		strcat(homedir, tmpname);
-
-		mkdir(dirname, 0755);
-		mkdir(homedir, 0755);
-		if (chdir(dirname) < 0) {
-			tst_resm(TFAIL,"\tCan't chdir(%s), error %d.", dirname, errno);
-			cleanup();
-			tst_exit();
-		}
-		dirlen = strlen(dirname);
-		if (chdir(homedir) < 0) {
-			tst_resm(TFAIL,"\tCan't chdir(%s), error %d.", homedir, errno);
-			cleanup();
-			tst_exit();
-		}
 
 		/* enter block */
 		for (k = 0; k < nchild; k++) {
@@ -173,9 +159,7 @@ int main(int ac, char *av[])
 			if (child < 0) {
 				tst_resm(TINFO, "System resource may be too low, fork() malloc()"
 				                     " etc are likely to fail.");
-				tst_resm(TBROK, "Test broken due to inability of fork.");
-				cleanup();
-				tst_exit();
+				tst_brkm(TBROK, cleanup, "Test broken due to inability of fork.");
 			}
 			pidlist[k] = child;
 		}
@@ -184,7 +168,8 @@ int main(int ac, char *av[])
 		 * Wait for children to finish.
 		 */
 		count = 0;
-		while ((child = wait(&status)) > 0) {
+		while (errno = 0, (child = wait(&status)) != -1 || errno == EINTR) {
+			if(child == -1) continue;
 			//tst_resm(TINFO,"Test{%d} exited status = 0x%x", child, status);
 			//fprintf(stdout, "status is %d",status);
 			if (status) {
@@ -217,45 +202,8 @@ int main(int ac, char *av[])
 				unlink(name);
 			}
 
-		chdir(startdir);
-
-		pid = fork();
-		if (pid < 0) {
-			tst_resm(TINFO, "System resource may be too low, fork() malloc()"
-			                         " etc are likely to fail.");
-			tst_resm(TBROK, "Test broken due to inability of fork.");
-			tst_exit();
-		}
-
-		if (pid == 0) {
-			execl("/bin/rm", "rm", "-rf", homedir, NULL);
-			tst_exit();
-		} else
-			wait(&status);
-
-		if (status)
-			tst_resm(TINFO,"CAUTION - ftest06, '%s' may not have been removed.",
-			  homedir);
-
-		pid = fork();
-		if (pid < 0) {
-			tst_resm(TINFO, "System resource may be too low, fork() malloc()"
-			                         " etc are likely to fail.");
-			tst_resm(TBROK, "Test broken due to inability of fork.");
-			tst_exit();
-		}
-		if (pid == 0) {
-			execl("/bin/rm", "rm", "-rf", dirname, NULL);
-			tst_exit();
-		} else
-			wait(&status);
-		if (status) {
-			tst_resm(TINFO,"CAUTION - ftest06, '%s' may not have been removed.",
-			  dirname);
-		}
-
-		sync();
-		cleanup();
+		SUCCEED_OR_DIE(chdir, "chdir(%s) failed: %s", cwd);
+		sync();				/* safeness */
 
 	}
 
@@ -345,7 +293,7 @@ static void unlfile(int me, int count)
 static void fussdir(int me, int count)
 {
 	int val;
-	char dir[128], fname[128], savedir[128];
+	char dir[128], fname[128], *savedir;
 
 	ft_mkname(dir, dirname, me, count);
 	rmdir(dir);
@@ -357,8 +305,9 @@ static void fussdir(int me, int count)
 	/*
 	 * Arrange to create files in the directory.
 	 */
-	strcpy(savedir, dirname);
-	strcpy(dirname, "");
+
+	savedir = dirname;
+	dirname = "";
 
 	val = chdir(dir);
 	warn(val, "chdir", dir);
@@ -395,7 +344,7 @@ static void fussdir(int me, int count)
 		warn(val, "rmdir", dir);
 	}
 
-	strcpy(dirname, savedir);
+	dirname = savedir;
 }
 
 
@@ -451,15 +400,15 @@ static void dowarn(int me, char *m1, char *m2)
 
 static void term(int sig LTP_ATTRIBUTE_UNUSED)
 {
-	int i;
+	int i, status;
 
 	tst_resm(TINFO, "\tterm -[%d]- got sig term.", getpid());
 
 	if (parent_pid == getpid()) {
-		for (i = 0; i < nchild; i++)
-			if (pidlist[i])
+		for (i=0; i < nchild; i++)
+			if (pidlist[i] > 0 && waitpid(pidlist[i], &status, WNOHANG) == 0)		/* avoid embarassment */
 				kill(pidlist[i], SIGTERM);
-		return;
+		cleanup();
 	}
 
 	tst_resm(TBROK, "Term: Child process exiting.");
@@ -468,33 +417,6 @@ static void term(int sig LTP_ATTRIBUTE_UNUSED)
 
 static void cleanup(void)
 {
-	char mount_buffer[1024];
-
-	if (mnt == 1) {
-		if (chdir(startdir) < 0) {
-			tst_resm(TINFO,"Could not change to %s ", startdir);
-		}
-		if (!strcmp(fstyp, "cfs")) {
-			sprintf(mount_buffer, "/bin/umount %s", partition);
-			if (system(mount_buffer) != 0) {
-				tst_resm(TINFO,"Unable to unmount %s from %s ", partition, mntpoint);
-				if (umount(partition)) {
-					tst_resm(TINFO,"Unable to unmount %s from %s ", partition, mntpoint);
-				}
-				else {
-					tst_resm(TINFO, "Forced umount for %s, /etc/mtab now dirty", partition );
-				}
-			}
-		}
-		else {
-			if (umount(partition)) {
-				tst_resm(TINFO,"Unable to unmount %s from %s ", partition, mntpoint);
-			}
-		}
-		if (rmdir(mntpoint) != 0) {
-			tst_resm(TINFO,"Unable to rmdir %s ", mntpoint);
-		}
-	}
 	tst_rmdir();
 	tst_exit();
 }

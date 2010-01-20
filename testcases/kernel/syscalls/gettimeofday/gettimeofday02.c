@@ -109,7 +109,7 @@ int main(int ac, char **av)
 
 		if (tv2.tv_sec < tv1.tv_sec ||
 		    (tv2.tv_sec == tv1.tv_sec && tv2.tv_usec < tv1.tv_usec)) {
-			tst_resm(TFAIL,
+      tst_resm(TFAIL,
 				 "Time is going backwards: old %jd.%jd vs new %jd.%jd!",
 				 (intmax_t)tv1.tv_sec, (intmax_t)tv1.tv_usec, (intmax_t)tv2.tv_sec,
 				 (intmax_t)tv2.tv_usec);

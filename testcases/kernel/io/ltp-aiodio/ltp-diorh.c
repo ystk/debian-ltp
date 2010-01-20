@@ -49,13 +49,21 @@
 int pagesize;
 char *iobuf;
 int pass = 0;
+static char* filename;
+
+static void cleanup(int err)
+{
+	if(filename)
+		unlink(filename);
+	exit(err);
+}
 
 void assert(const char *what, int assertion)
 {
 		 if (assertion)
 		 		 return;
 		 perror(what);
-		 exit(1);
+		 cleanup(1);
 }
 
 void do_buffered_writes(int fd, int pattern)
@@ -70,7 +78,7 @@ void do_buffered_writes(int fd, int pattern)
 		 		 if (rc != WRITESIZE) {
 		 		 		 fprintf(stderr, "Pass %d: short write (%d out of %d)\n",
 		 		 		 		 pass, rc, WRITESIZE);
-		 		 		 exit(1);
+		 		 		 cleanup(1);
 		 		 }
 		 		 fsync(fd);
 		 }
@@ -92,7 +100,7 @@ int do_direct_reads(char *filename)
 		 		 if (rc != READSIZE) {
 		 		 		 fprintf(stderr, "Pass: %d short read (%d out of %d)\n",
 		 		 		 		 pass, rc, READSIZE);
-		 		 		 exit(1);
+		 		 		 cleanup(1);
 		 		 }
 		 		 for (i=0, p=(int *)iobuf; i<READSIZE; i+=4) {
 		 		 		 if (*p) {
@@ -147,7 +155,7 @@ int main(int argc, char *argv[])
 		 	
 		 		 if (!pid) {
 		 		 		 do_buffered_writes(fd, 0);
-		 		 		 exit(0);
+		 		 		 cleanup(0);
 		 		 }
 		 	
 		 		 err = do_direct_reads(filename);
@@ -170,5 +178,5 @@ int main(int argc, char *argv[])
              fprintf(stdout, "ltp-diorh: Completed %d iterations OK \n", pass);
          }
 	
-		 return err;
+				 cleanup(err);
 }

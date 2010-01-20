@@ -179,7 +179,7 @@ main(int ac, char **av)
 		/* Clean up things in case we are looping */
 		for (i = 0; i < 5; i++) {
                 	if (munmap(addrlist[i], 256*1024*1024))
-                        	tst_resm(TBROK,"munmap of addrlist[%d] failed",i);
+                        	tst_resm(TBROK,"munmap of addrlist[%ld] failed",i);
         	}
 	
 #if __WORDSIZE==64

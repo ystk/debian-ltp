@@ -64,7 +64,7 @@ int ac;
 char *av[];
 {
 	int *fildes, j;
-	int ifile;
+	int ifile = 0;
 	char pfilname[40];
 	int min;
 	int freefds;
@@ -84,6 +84,8 @@ char *av[];
 	freefds = cnt_free_fds(min);
 	fildes = (int *)malloc((min + 5) * sizeof(int));
 	local_flag = PASSED;
+
+	tst_tmpdir();
 
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
@@ -125,6 +127,7 @@ char *av[];
 		}
 
 	}			/* end for */
+	tst_rmdir();
 	tst_exit();
 	return 0;
 

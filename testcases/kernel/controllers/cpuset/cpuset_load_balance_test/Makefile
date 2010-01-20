@@ -28,3 +28,5 @@ include $(abs_srcdir)/../Makefile.inc
 LDLIBS			+= -lm
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk
+
+$(MAKE_TARGETS): %: | $(LIBCPUSET) $(LIBCONTROLLERS)

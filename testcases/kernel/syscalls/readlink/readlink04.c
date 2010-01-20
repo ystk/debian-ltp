@@ -65,6 +65,7 @@
  * RESTRICTIONS:
  *  This test should be executed by 'super-user' only.
  */
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <pwd.h>
 #include <sys/types.h>
@@ -177,9 +178,8 @@ void setup()
 {
 	int pid;
 	char *tmp_dir = NULL;
-	char path_buffer[BUFSIZ];	/* Buffer to hold command string */
+	char *path_buffer;	/* Buffer to hold command string */
 	char *cargv[4];
-	char bin_dir[PATH_MAX];	/* variable to hold TESTHOME env */
 	struct passwd *pwent;
 
 	/* Check that the test process id is super/root  */
@@ -193,11 +193,9 @@ void setup()
 	/* Pause if that option was specified */
 	TEST_PAUSE;
 
-	/* Get current bin directory */
-	if (getcwd(bin_dir, sizeof(bin_dir)) == NULL) {
-		tst_brkm(TBROK, tst_exit,
-			 "getcwd(3) fails to get working directory of process");
-	}
+	if(asprintf(&path_buffer, "%s/testcases/bin/creat_slink", getenv("LTPROOT"))==-1)
+		tst_brkm(TBROK, tst_exit, "Couldn't allocate temporary buffer for pathname: %s", strerror(errno));
+
 
 	/* make a temp directory and cd to it */
 	tst_tmpdir();
@@ -219,10 +217,6 @@ void setup()
 	if (chmod(tmp_dir, 0711) != 0) {
 		tst_brkm(TBROK, cleanup, "chmod() failed");
 	}
-
-	/* create the full pathname of the executable to be execvp'ed */
-	strcpy((char *)path_buffer, (char *)bin_dir);
-	strcat((char *)path_buffer, (char *)creat_slink);
 
 	symfile_path = "slink_file\0";
 
@@ -255,6 +249,7 @@ void setup()
 	}
 
 	/* parent */
+	free(path_buffer);
 
 	/* wait to let the execvp'ed process do its work */
 	waitpid(pid, NULL, 0);

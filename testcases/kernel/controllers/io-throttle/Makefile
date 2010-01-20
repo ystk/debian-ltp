@@ -30,3 +30,5 @@ INSTALL_TARGETS		:=  run_io_throttle_test.sh myfunctions-io.sh
 LDLIBS			+= -lm -lcontrollers
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk
+
+$(MAKE_TARGETS): %: | $(LIB)

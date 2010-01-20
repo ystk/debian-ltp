@@ -67,20 +67,26 @@ int main(int argc, char *argv[])
 		perror("lftest: ");
 
 	for (i = 0; i < bufnum; i++) {
-		if (write(fd, buf, BSIZE) == -1)
+		if (write(fd, buf, BSIZE) == -1) {
+			close(fd);
+			unlink("large_file");
 			return -1;
-		else {
+		} else {
 			printf(".");
 			writecnt++;
 			fflush(stdout);
 		}
 		fsync(fd);
-		if (lseek(fd, (i + 1) * BSIZE, 0) == -1)
+		if (lseek(fd, (i + 1) * BSIZE, 0) == -1) {
+			close(fd);
+			unlink("large_file");
 			return -1;
+		}
 		else
 			seekcnt++;
 	}
 	close(fd);
+	unlink("large_file");
 	time2 = time(NULL);
 	printf("\nFinished building a %lu megabyte file @ %s\n", bufnum,
 	       asctime(localtime(&time2)));

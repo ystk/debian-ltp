@@ -1,0 +1,94 @@
+#!/usr/bin/make -f
+KERNEL_TESTCASES=abort* accept* access* acct* acl_* add_key* adjtimex*	aio* dio_*  \
+alarm* asyncio* bdflush* bind* brk* cacheflush* capget* capset* cap_*bounds* check_pe chdir* chmod* chown* child*.sh	ch_ftp.sh \
+chroot* cgroup_regression_test.sh cgroup_fj_* clock_* clone* close* confstr* connect* container_ftp.pl creat[0-9]* creat_slink					\
+create_datafile cpuset_* crtchild* cpuacct_* data_space disktest dirty doio dummy delchild.sh					\
+dup* epoll-ltp eventfd* event-generator exec* exit* endian_switch* epoll_create1_* frag fallocate* faccessat* fchdir* fchmod*				\
+fchown* fcntl* fdatasync* flock* fmtmsg* fork* fpathconf* fs_di					\
+fs_perms_simpletest.sh fs_inod fs_perms fsstress fstat* fsx-linux fsxtest* fsync* ftest*				\
+ftruncate* futimesat* get_sched_values getdelays [gs]et_robust_list* getcontext* getcpu* getcwd* getdents* getdomainname*			\
+getdtablesize* getegid* geteuid* getgid* getuid* getgroups* gethostid*	\
+gethostname* getitimer* getpagesize* getpeername* getpgid* getpgrp*			\
+getpid* getppid* getpriority* getresgid* getresuid* getrlimit*					\
+getrusage* getsid* getsockname* getsockopt* gettid* gettimeofday* get_mempolicy* growfiles			\
+hackbench hangup* hugemmap* hugeshm* initialize.sh inode* io_* ioctl* iogen ioperm* iopl* inotify* ilb_test.py		\
+kill[0-9]* keyctl* lchown* lftest link* llseek* lseek* lstat* ltp-diorh listen* locktests madvise*	\
+mallocstress mallopt* mbind* mem[0-9]* memcg_* memset* memcpy* memcmp* message_queue* mesgq_nstest mq_* mqns_* mincore* mkdir[0-9]*					\
+mkdirat* mknod* mlock* mmap* mmstress modify_ldt* run-modify_ldt* mount* move_pages* mprotect*			\
+mremap* msgctl* msgget* msgrcv* msgsnd* msync* mtest* munlock* munmap*	\
+nanosleep* newuname* nftw* nice* nptl* support_numa numa* open[0-9]* openat* openfile page*		\
+parent*.sh par_chld_* par_ftp.sh paripv6.sh \
+pathconf* pause* performance_counter* pec_listener personality* pipe* pidns* posix_fadvise* ppoll* poll* prctl*	\
+pread* proc* profil* pselect* ptem* pth_str* pthcli pthserv data ptrace*			\
+pty* pwrite* read* reboot* recv* remap_file_pages* rename* rmdir* run-io* run_semaphore_test*	run_pec_test run_sched_cliserv.sh		\
+quota_remount_test*.sh quotactl* \
+rwtest rt_sig* sbrk* sched* select* sem* send[0-9]* sendfile0[2-9]							\
+sendfile0[2-9]_64 sendmsg* sendto* setdomainname* setegid* setfsgid*		\
+setfsuid* setgid* setgroups* sethostname* setitimer* setpgid* setpgrp*	\
+setpriority* setregid* setresgid* setresuid* setreuid* setrlimit*				\
+setsid* setsockopt* settimeofday* setuid* set_thread_area* set_tid_address* shm* sig*					\
+socket* sockioctl* splice* s[sg]etmask* stack_space stat* stime* stream* string*			\
+swapoff* swapon* symlink* sync* syscall* sysconf* sysctl* sysfs*				\
+sysinfo* syslog* smount tee* test? test_controllers.sh test_sched_mc.sh \
+time* tkill* trace_sched truncate* two_children_ns ulimit* umask*	\
+umount* uname* unlink* unshare* ustat* utime* vfork* vhangup* vmsplice* wait*		\
+write* utstest checkfor*cap* check_xattr filecapstest.sh inh_capped print_caps			\
+verify_caps_exec check_simple_capset check_for_unshare									\
+check_*ns_enabled container_test.sh run*nstest.sh runutstest.sh					\
+change_freq.sh change_govr.sh check_cpufreq_sysfs_files.sh cpu_consolidation.py \
+check_cpuidle_sysfs_files.sh check_kv_arch pm_include.sh pwkm_load_unload.sh runpwtests.sh run_io_throttle_test.sh \
+run_memctl_test.sh run_cpuset_test.sh run_cpuctl*_test.sh run_capbounds.sh parameters.sh myfunctions-io.sh \
+run_*_test_fj.sh run_cpuacct_test.sh myfunctions.sh memctl_test01 iobw event_generator cpuctl_* \
+tcore* fs_racer* ht_* smt_smp_*.sh create_container nw_under_ns.sh \
+dma_thread_diotest7 test_dma_thread_diotest7.sh test_[0-9]*_[0-9].sh test_[0-9]*_[0-9] test_sched_smt.sh test_timer_migration.sh
+
+NETWORK_TESTCASES=acl1 add_ipv6addr arp* asapi_* bg_tcp_traffic broken_ip*			\
+check_envval check_icmp* check_netem check_setkey create_file						\
+dhcpd_tests.sh dns-stress* dns4-stress dns6-stress echo*								\
+find_portbundle finger* ftp* get_ifname getaddrinfo_* host* http* icmp* if* in6_*		\
+initialize_if ip_tests.sh iptables* killall_*_traffic 					\
+ltpClient ltpServer mc_* mcast* member *ManyGroups rcast* netstat* nfs* ns-* open_files opts*			\
+output_ipsec_conf perf_lan* ping* rcp* rdist* rlogin* route* rpc_server rpc*[0-9] rsh*	\
+rusers* rup* rwho* sendfile01 sendfile6?? set_ipv4addr ssh* tcp*		\
+telnet* test_[[:lower:][:digit:]]*[^.][^.][^.][^.] traceroute_tests.sh udp*	\
+xinetd_tests.sh createfile SF_Server* testsf_* make_tree net_cmdlib.sh cmdlib.sh
+
+MISC_TESTCASES=abs* atof* crash* f00f float* fptest* nextafter*	\
+*.ref *.ref2 [rd]*sin [rd]sinh [rd]*cos [rd]cosh [rd]*tan [rd]*tan2		\
+[rd]tanh
+
+COMMANDS_TESTCASES=lddfile*.obj nmfile*.[oc]* tpm* test_arch.obj	\
+unzip_tests.sh
+
+DISC_TESTCASES=diotest* 1*K_file
+
+write_testcases = $(patsubst $(CURDIR)/debian/tmp/%,%,$(wildcard $(addprefix $(CURDIR)/debian/tmp/usr/lib/ltp/testcases/bin/, $(1))))
+
+# write_testcases() {
+#     for i in $@; do
+#         echo 'build-tree/*/testcases/bin/'$i usr/lib/ltp/tests/linux/testcases/bin
+#     done;
+# }
+
+dh_install_targets = debian/ltp-kernel-test.install debian/ltp-network-test.install debian/ltp-misc-test.install debian/ltp-commands-test.install debian/ltp-disc-test.install
+
+$(dh_install_targets) : debian/ltp-%-test.install : debian/ltp-%-test.install.in  FORCE
+	cp $< $@
+	sh -c "$(foreach line, $(call write_testcases, $($(shell echo $* | tr [a-z] [A-Z])_TESTCASES)), echo $(line);)" >> $@
+
+dh_install_check: $(dh_install_targets)
+	sh -c "! cat debian/ltp*.install | sort | uniq -d | grep . | read x"
+	find $(CURDIR)/debian/tmp/usr/lib/ltp/testcases/bin $(CURDIR)/debian/tmp/usr/lib/ltp/runtest | sort > all-files
+	@echo "Kernel version: "
+	@uname -a
+	@echo "===================================================="
+	@echo "=     Files not present in the packages            ="
+	@echo "===================================================="
+	@cat debian/ltp*.install | grep -v '^#' | sed 's#^[[:space:]]*\([^[:space:]]\+\).*$$#$(CURDIR)/debian/tmp/\1#' | sh -c 'echo $$(cat)' | xargs find | sort | comm -3 -1 - all-files
+	@echo "===================================================="
+	rm -f all-files
+
+clean::
+	rm -f $(dh_install_targets)	all-files
+
+FORCE:

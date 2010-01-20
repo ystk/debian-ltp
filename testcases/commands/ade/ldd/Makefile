@@ -30,6 +30,8 @@ INSTALL_TARGETS		:= ldd01
 
 MAKE_TARGETS		:= $(patsubst $(abs_srcdir)/%.c,%.obj,$(wildcard $(abs_srcdir)/*.c))
 
+INSTALL_MODE = $(if $(filter %ldd01,$@), 0755, 0644)
+
 $(MAKE_TARGETS): %.obj: %.o
 	mv $^ $@
 

@@ -1,0 +1,160 @@
+Source: ltp
+Section: misc
+Vcs-Browser: http://repo.or.cz/w/ltp-debian.git
+Vcs-Git: git://repo.or.cz/ltp-debian.git
+Homepage: http://ltp.sourceforge.net
+Priority: extra
+Build-Depends: debhelper (>> 5), flex, libcap2-dev (>= 2.11) | libcap-dev (>= 2.11), libcap2-bin, libattr1-dev, cdbs, libaio-dev, autoconf, automake, zip, unzip, dh-buildinfo, ed, libnuma-dev (>= 2.0.3~) [i386 amd64 ia64 mips mipsel powerpc]
+Maintainer: Jiri Palecek <jpalecek@web.de>
+Standards-Version: 3.8.3
+
+Package: ltp-tools
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Utilities for running the Linux Test Project test suite
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains the PAN tools and other utilities used by the test suite
+ in a directory /usr/lib/ltp/tools
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+	
+Package: ltp-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: development files for Linux Test Project
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ . 
+ This package contains the header files and static library (libltp.a) used
+ to develop tests for the test suite.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+
+Package: ltp-kernel-test
+Architecture: any
+Recommends: ltp, libcap2-bin, iproute, gdb, expect, psmisc, python, quota, numactl [i386 amd64 ia64 mips mipsel powerpc]
+Suggests: time
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: ltp-network-test (<< 20081130~)
+Description: kernel tests for the Linux Test Project
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains tests for testing the Linux Kernel using the
+ ltp or debian-test packages.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+
+Package: ltp-network-test
+Architecture: any
+Depends: ltp-tools, ${shlibs:Depends}, ${misc:Depends}
+Recommends: ltp, expect, rsh-client, ftp, tcpdump, ping, rwho, finger, rstat-client, rusers, rdist, iptables, ssh-client, xinetd, dhcp3-server, telnet-client
+Suggests: rsh-server, ftp-server, telnet-server, nfs-server, fingerd, rstatd, rusersd, c-compiler, linux-libc-dev, ssh-server, ipsec-tools, ethtool
+Description: Network tests for the Linux Test Project
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains files for testing the Networking commands in 
+ Debian using the ltp or debian-test programs.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+
+Package: ltp-commands-test
+Architecture: any
+Depends: ltp-tools, ${shlibs:Depends}, ${misc:Depends}
+Recommends: ltp, expect, binutils, c-compiler, rpm, tpm-tools, mailx, at, acl, unzip
+Replaces: ltp-network-test (<< 20081130~), ltp-kernel-test (<< 20081130~)
+Description: Command tests for the Linux Test Project 
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains files for testing general commands in Debian
+ using the ltp or debian-test programs.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+
+Package: ltp-misc-test
+Architecture: any
+Depends: ltp-tools, ${shlibs:Depends}, ${misc:Depends}
+Recommends: ltp
+Description: Misc. tests for the Linux Test Project
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains files for testing miscellaneous commands in
+ Debian using the ltp or debian-test programs.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+
+Package: ltp-disc-test
+Architecture: any
+Depends: ltp-tools, fdutils, ${shlibs:Depends}, ${misc:Depends}
+Recommends: ltp, dump, cpio, dosfstools
+Description: Disk I/O tests for the Linux Test Project
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains the disk i/o tests for the Linux Test Project.
+ .
+ Inorder for these tests to successfully operate a writable high-density
+ 3.5" floppy must be in the disk drive and a CD-ROM with more than 100Mb
+ of data must be in the CD-ROM drive.  The corresponding tests will fail
+ if either disk is missing.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+  
+Package: ltp
+Architecture: all
+Depends: ltp-tools, dialog, ${misc:Depends}, ${perl:Depends}, libcurses-ui-perl, liblist-moreutils-perl
+Recommends: ltp-kernel-test, ltp-network-test, ltp-misc-test, ltp-commands-test, ltp-disc-test
+Description: The Linux Test Project test suite
+ The Linux Test Project is a joint project with SGI, IBM, OSDL, and Bull with a
+ goal to deliver test suites to the open source community that validate the 
+ reliability, robustness, and stability of Linux. The Linux Test Project is a 
+ collection of tools for testing the Linux kernel and related features. Our goal 
+ is to improve the Linux kernel by bring test automation to the kernel testing 
+ effort. Interested open source contributors are encouraged to join the project.
+ .
+ This package contains scripts for driving the Linux Test Project
+ stress-test suite.
+ .
+ WARNING: These tests may crash your machine, drain resources and
+ jeopardize your security. Use with caution, and not on production systems.
+

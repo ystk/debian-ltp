@@ -29,7 +29,7 @@ AUTOHEADER		?= autoheader
 AUTOMAKE		?= automake
 
 include $(top_srcdir)/include/mk/env_pre.mk
-include $(abs_srcdir)/config.mk
+-include $(abs_srcdir)/config.mk
 
 LIBDIR			:= lib
 FILTER_OUT_DIRS		:= $(LIBDIR)

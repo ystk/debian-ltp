@@ -39,6 +39,8 @@
 #
 # Return        - zero on success
 #               - non zero on failure. return value from commands ($RC)
+PATH=$PATH:$LTPTOOLS
+
 setup()
 {
 export TST_TOTAL=1  # Total number of test cases in this file.

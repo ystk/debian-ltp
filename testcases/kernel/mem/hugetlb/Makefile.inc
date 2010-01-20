@@ -41,6 +41,4 @@ LDFLAGS			+= -L$(abs_builddir)/$(LIBMMDIR) -L$(abs_builddir)/$(LIBIPCDIR)
 
 LDLIBS			+= -lmm -lipc_hugetlb
 
-all: | $(LIBMM) $(LIBIPC)
-
 # vim: syntax=make

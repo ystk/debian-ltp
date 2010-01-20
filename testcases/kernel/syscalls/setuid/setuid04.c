@@ -187,6 +187,8 @@ void setup(void)
 
 	ltpuser = getpwnam(nobody_uid);
 
+	tst_tmpdir();
+
 	sprintf(testfile, "setuid04file%d.tst", getpid());
 
 	/* Create test file */
@@ -215,6 +217,8 @@ void cleanup(void)
 	 * print errno log if that option was specified
 	 */
 	TEST_CLEANUP;
+
+	tst_rmdir();
 
 	/* exit with return code appropriate for results */
 	tst_exit();

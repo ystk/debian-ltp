@@ -26,4 +26,6 @@ include $(top_srcdir)/include/mk/env_pre.mk
 
 INSTALL_TARGETS		:= cron0[23] cron_illegal_cron_lines cron_allow01 cron_deny01 cron_dirs_checks01 *.sh
 
+INSTALL_MODE = $(if $(filter %cron_illegal_cron_lines,$@), 0644, 0755)
+
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

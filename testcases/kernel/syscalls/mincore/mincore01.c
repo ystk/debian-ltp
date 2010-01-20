@@ -221,6 +221,8 @@ void setup()
 	buf = (char *)malloc(global_len);
 	memset(buf, 42, global_len);
 
+	tst_tmpdir();
+
 	/* capture signals */
 	tst_sig(FORK, DEF_HANDLER, cleanup);
 
@@ -273,6 +275,8 @@ void cleanup()
 	munmap(global_pointer, global_len);
 	close(file_desc);
 	remove(file_name);
+
+	tst_rmdir();
 
 	/* exit with return code appropriate for results */
 	tst_exit();

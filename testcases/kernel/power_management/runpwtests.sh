@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/bash 
 ################################################################################
 ##                                                                            ##
 ## Copyright (c) International Business Machines  Corp., 2001                 ##
@@ -29,10 +29,12 @@
 # 03 Nov 2008 - Added CPUIDLE sysfs testcase
 #
 
+PATH=$PATH:$LTPTOOLS
+
 # Exporting Required variables
 export TST_TOTAL=1
 #LTPTMP=${TMP}
-export PATH=${PATH}:.
+export PATH=${PATH}:$LTPROOT/testcases/bin:.
 export TCID="Power_Management"
 export TST_COUNT=0
 export contacts="mpnayak@linux.vnet.ibm.com"

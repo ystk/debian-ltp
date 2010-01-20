@@ -461,11 +461,10 @@ kill12 kill12
 
 lchown01 lchown01
 lchown01_16 lchown01_16
-lchown02 prep_create_link; lchown02
-lchown02_16 prep_create_link; lchown02_16
+lchown02 lchown02
+lchown02_16 lchown02_16
 
 libevent01 export LTPROOT; $LTPROOT/testcases/bin/libevent/run_libevent.sh
-
 link01 symlink01 -T link01
 link02 link02
 link03 link03
@@ -535,7 +534,7 @@ mknod08 mknod08
 mknod09 mknod09
 
 #mknodat test cases
-mknodat01 cd $LTPROOT/testcases/bin && chown root mknodat01 && chmod 04755 mknodat01 && mknodat01
+mknodat01 mknodat01
 
 mlock01 mlock01
 mlock02 mlock02
@@ -568,7 +567,7 @@ mount1234 test_mount
 
 move_pages01 move_pages.sh 01
 move_pages02 move_pages.sh 02
-move_pages03 cd $LTPROOT/testcases/bin && chown root move_pages03 && chmod 04755 move_pages03 && move_pages.sh 03 
+move_pages03 move_pages.sh 03
 move_pages04 move_pages.sh 04
 move_pages05 move_pages.sh 05
 move_pages06 move_pages.sh 06
@@ -576,7 +575,7 @@ move_pages07 move_pages.sh 07
 move_pages08 move_pages.sh 08
 move_pages09 move_pages.sh 09
 move_pages10 move_pages.sh 10
-move_pages11 cd $LTPROOT/testcases/bin && chown root move_pages11 && chmod 04755 move_pages11 && move_pages.sh 11
+move_pages11 move_pages.sh 11
 
 mprotect01 mprotect01
 mprotect02 mprotect02
@@ -751,7 +750,7 @@ readlink01A symlink01 -T readlink01
 readlink01 readlink01
 readlink02 readlink02
 readlink03 readlink03
-readlink04 cp -f $LTPROOT/testcases/bin/creat_slink $TMP; readlink04
+readlink04 readlink04
 
 #readlinkat test cases
 readlinkat01 readlinkat01

@@ -230,7 +230,7 @@ void setup()
 	/*
 	 * Create a test directory under temporary directory with specified
 	 * mode permissions and change the gid of test directory to that of
-	 //wjh Improper comment! Ownership it changed to "nobody"
+//wjh Improper comment! Ownership it changed to "nobody"
 	 * guest user2.
 	 */
 	if (mkdir(TESTDIR, MODE_RWX) < 0)

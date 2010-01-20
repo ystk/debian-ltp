@@ -1,4 +1,4 @@
-su01 export TCbin=$LTPROOT/testcases/bin;su01
+su01 export TCbin=$LTPROOT/testcases/bin;su01 # $PASSWD
 #cron01 cron01
 cron02 cron02
 cron_deny01 cron_deny01

@@ -37,6 +37,8 @@
 #
 # Return		- zero on success
 #               - non zero on failure. return value from commands ($RC)
+PATH=$PATH:$LTPTOOLS
+
 init()
 {
 
@@ -59,12 +61,12 @@ init()
 	fi
 
 	
-	$LTPBIN/tst_resm TINFO "INIT: Inititalizing tests."
+	tst_resm TINFO "INIT: Inititalizing tests."
 
 	which mv > $LTPTMP/tst_mv.err 2>&1 || RC=$?
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_brk TBROK $LTPTMP/tst_mv.err NULL \
+		tst_brk TBROK $LTPTMP/tst_mv.err NULL \
 			"Test #1: mv command does not exist. Reason:"
 		return $RC
 	fi
@@ -72,7 +74,7 @@ init()
 	mkdir -p $LTPTMP/tst_mv.tmp > $LTPTMP/tst_mv.err 2>&1 || RC=$? 
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_brk TBROK $LTPTMP/tst_mv.err NULL \
+		tst_brk TBROK $LTPTMP/tst_mv.err NULL \
 			"Test #1: failed creating temp directory. Reason:"
 		return $RC
 	fi
@@ -99,15 +101,15 @@ creat_dirnfiles()
 	fcnt=0      # index into number of files created in loop
 	RC=0        # return value from commands
 
-	$LTPBIN/tst_resm TINFO "Test #$1: Creating $numdirs directories."
-	$LTPBIN/tst_resm TINFO "Test #$1: filling each dir with $numfiles files".
+	tst_resm TINFO "Test #$1: Creating $numdirs directories."
+	tst_resm TINFO "Test #$1: filling each dir with $numfiles files".
 	while [ $dircnt -lt $numdirs ]
 	do
 		dirname=$dirname/d.$dircnt
         mkdir -p $dirname  > $LTPTMP/tst_mv.err 2>&1 || RC=$?
 		if [ $RC -ne 0 ]
 		then
-			$LTPBIN/tst_brk TBROK $LTPTMP/tst_mv.err NULL \
+			tst_brk TBROK $LTPTMP/tst_mv.err NULL \
 			"Test #$1: while creating $numdirs dirs.  Reason"
 			return $RC
 		fi
@@ -117,7 +119,7 @@ creat_dirnfiles()
 			touch $dirname/f.$fcnt
 			if [ $RC -ne 0 ]
 			then
-				$LTPBIN/tst_brk TBROK $LTPTMP/tst_mv.err NULL \
+				tst_brk TBROK $LTPTMP/tst_mv.err NULL \
 				"Test #$1: while creating $numdirs dirs.  Reason"
 				return $RC
 			fi
@@ -193,7 +195,7 @@ test01()
 	dircnt=0
     fcnt=0
 
-	$LTPBIN/tst_resm TINFO \
+	tst_resm TINFO \
 		"Test #1: mv <dir1> <dir2> will move dir1 to dir2 and all its contents"
 
 	creat_dirnfiles 1 $numdirs $numfiles $LTPTMP/tst_mv.tmp || RC=$?
@@ -206,33 +208,33 @@ test01()
 	mv $LTPTMP/tst_mv.tmp $LTPTMP/tst_mv.tmp1 > $LTPTMP/tst_mv.err 2>&1 || RC=$?
     if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_res TFAIL $LTPTMP/tst_mv.err \
+		tst_res TFAIL $LTPTMP/tst_mv.err \
 		"Test #1: mv failed, mv command  returned $RC. Reason:"
 		return $RC
 	fi
 
-	$LTPBIN/tst_resm TINFO "Test #1: creating output file"
+	tst_resm TINFO "Test #1: creating output file"
 	ls -R $LTPTMP/tst_mv.tmp1 > $LTPTMP/tst_mv.out 2>&1
 
-	$LTPBIN/tst_resm TINFO "Test #1: creating expected output file"
+	tst_resm TINFO "Test #1: creating expected output file"
 	creat_expout $numdirs $numfiles $LTPTMP/tst_mv.tmp1
 
-	$LTPBIN/tst_resm TINFO \
+	tst_resm TINFO \
 	    "Test #1: comparing expected out and actual output file"
 	diff -w -B -q $LTPTMP/tst_mv.out $LTPTMP/tst_mv.exp > $LTPTMP/tst_mv.err 2>&1 \
 		|| RC=$?
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_res TFAIL $LTPTMP/tst_mv.err \
+		tst_res TFAIL $LTPTMP/tst_mv.err \
 			"Test #1: mv failed. Reason:"
 	else
-		$LTPBIN/tst_resm TINFO "Test #1: expected same as actual"
+		tst_resm TINFO "Test #1: expected same as actual"
 		if [ -f $LTPTMP/tst_mv.tmp ]
 		then
-			$LTPBIN/tst_resm TFAIL ""Test #1: mv did not delete old directory"
+			tst_resm TFAIL ""Test #1: mv did not delete old directory"
 			return $(($RC+1))
 		else
-			$LTPBIN/tst_resm TPASS "Test #1: mv success"
+			tst_resm TPASS "Test #1: mv success"
 		fi
 	fi
 	return $RC

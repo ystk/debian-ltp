@@ -20,12 +20,18 @@
 ##                                                                            ##
 ################################################################################
 
+PATH=$PATH:$LTPTOOLS
+
 export TCID=dma_thread_diotest7
 export TST_TOTAL=3
 export TST_COUNT=3
 
 tst_resm TINFO "Generating Test Files"
 ./dma_thread_diotest7
+if [ $? -ne 0 ]; then
+    tst_res TBROK "Test failed"
+    exit 1
+fi
 
 # test different alignments: 512, 1024, ..., (4096-512)
 for i in $(seq 512 512 4095)
@@ -33,7 +39,7 @@ do
         tst_resm TINFO "i=$i"
         ./dma_thread_diotest7 -a="$i"
         if [ $? -ne 0 ]; then
-             tst_res TFAIL "Test Failed"
+             tst_resm TFAIL "Test Failed"
              exit 1
         else
              tst_resm TPASS "Test Passed"

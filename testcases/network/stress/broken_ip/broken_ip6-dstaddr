@@ -43,6 +43,7 @@
 #trace_logic=${trace_logic:-"set -x"}
 $trace_logic
 
+PATH=$PATH:$LTPTOOLS
 # The test case ID, the test case count and the total number of test case
 TCID=${TCID:-broken_ip6-dstaddr01}
 TST_TOTAL=1

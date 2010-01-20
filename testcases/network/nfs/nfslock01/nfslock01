@@ -38,8 +38,8 @@
 $trace_logic
 
 TC=nfslock
-TCbin=${TCbin:=`pwd`}
-TCtmp=${TCtmp:=$TCbin/$TC$$}
+TCbin=${TCbin:=$LTPROOT/testcases/bin}
+TCtmp=${TCtmp:=/tmp/$TC$$}
 TCsrc=${TCsrc:=$TCbin}
 TClog=${TClog:=$TCtmp}
 

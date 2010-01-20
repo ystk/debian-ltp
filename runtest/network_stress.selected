@@ -7,6 +7,8 @@
 # Stress test for interface
 #
 
+#ALL: $RHOST $LHOST_HWADDRS $RHOST_HWADDRS
+
 if4-updown  if4-updown
 if4-addr-change if4-addr-change
 if4-alias-adddel  if4-alias-adddel

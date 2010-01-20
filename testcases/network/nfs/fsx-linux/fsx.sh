@@ -49,7 +49,7 @@ TC=${TC:=fsx}
 TCbin=${TCbin:=`pwd`}
 TCdat=${TCdat:=$TCbin}
 TCsrc=${TCsrc:=$TCbin}
-TCtmp=${TCtmp:=$TCbin/$TC$$}
+TCtmp=${TCtmp:=/tmp/$TC$$}
 TCdump=${TCdump:=$TCbin}
 
 # If CLEANUP is not set; set it to "ON"

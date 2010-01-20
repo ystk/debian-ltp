@@ -1,0 +1,27 @@
+- replace calls to strip in rules with dh_strip
+
+- Do we need the LTP_ROOT/{!bin} directories ?
+
+- List all build-depends for control file.
+
+- All compiles should use the -Wall flag.
+
+- Scripts should obey $TMPDIR (quote POSIX in bug report saying so)
+
+- Fix the su01 test - it needs PASSWD variable set
+
+- Include the rpc-tirpc test
+
+- Include ballista
+
+- Include fs_bind test
+
+- Include controllers test
+
+- Fix network_stress - it needs LFOST_HWADDRS and other variables set
+
+- Include hugetlb tests
+
+- aiodio contains hardcoded paths, big problem
+
+- the size01 test (and maybe some linker tests) actually don't test anything

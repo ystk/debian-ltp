@@ -37,11 +37,11 @@ $(LIB): $(LIBDIR)
 	    $(MAKE) -C $^ -f "$(abs_srcdir)/$^/Makefile" $$i; \
 	done
 
-trunk-all: $(LIB)
-
 trunk-clean:: | lib-clean
 
 lib-clean:: $(LIBDIR)
 	$(MAKE) -C $^ -f "$(abs_srcdir)/$^/Makefile" clean
 
 include $(top_srcdir)/include/mk/generic_trunk_target.mk
+
+$(MAKE_TARGETS): %: | $(LIB)

@@ -36,9 +36,9 @@
 $trace_logic
 this_file=${0##*/}
 TC=${TC:=rpc01}
-TCbin=${TCbin:=`pwd`}
+TCbin=${TCbin:=$LTPROOT/testcases/bin}
 TCdat=${TCdat:=$TCbin/datafiles}
-TCtmp=${TCtmp:=$LTPROOT/testcases/bin}
+TCtmp=${TCtmp:=/tmp/$TC$$}
 NUMLOOPS=${NUMLOOPS:=3}
 RHOST=${RHOST:=`hostname`}
 CLEANUP=${CLEANUP:="ON"}
@@ -68,7 +68,7 @@ do_test()
     do
       for FILE in $DATAFILES
       do
-	$TCtmp/rpc1 -s $RHOST -f $TCdat/$FILE
+	$TCbin/rpc1 -s $RHOST -f $TCdat/$FILE
 	[ $? -eq 0 ] || end_testcase "Fail on using $FILE"
       done 
       COUNT=`expr $COUNT + 1`
@@ -115,6 +115,8 @@ end_testcase()
    $trace_logic
    echo "$this_file: doing $0."
 
+   do_cleanup
+
    [ $# = 0 ] && { echo "Test Successful"; exit 0; }
    echo "Test Failed: $@"
    exit 1
@@ -125,6 +127,5 @@ end_testcase()
 #=============================================================================
 
 do_test
-do_cleanup
 end_testcase
 

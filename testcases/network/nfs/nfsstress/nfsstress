@@ -46,7 +46,7 @@ TC=${TC:=nfsstress}
 TCbin=${TCbin:=`pwd`}
 TCdat=${TCdat:=$TCbin}
 TCsrc=${TCsrc:=$TCbin}
-TCtmp=${TCtmp:=$TCbin/$TC$$}
+TCtmp=${TCtmp:=/tmp/$TC$$}
 TCdump=${TCdump:=$TCbin}
 RHOST=${RHOST:=`hostname|awk {'print $1'}`}
 

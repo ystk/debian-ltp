@@ -39,6 +39,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <pwd.h>
 #include <test.h>
 #include "linux_syscall_numbers.h"
 
@@ -210,6 +211,12 @@ int main(int argc, char *argv[])
 		uid_t u;
 
 		u = getuid();
+
+		if(u == 0) {
+			struct passwd* nobody=getpwnam("nobody");
+			if(nobody)
+				u = nobody->pw_uid;
+		}
 
 		if (verbose)
 			printf("Resetting UIDs to %ld\n", (long)u);

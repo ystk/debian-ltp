@@ -255,9 +255,11 @@ void cleanup()
 	 */
 	TEST_CLEANUP;
 
+	seteuid(0);
+
 	/* Close the test directory opened in the setup() */
 	if (close(fd) == -1) {
-		tst_brkm(TBROK, NULL,
+		tst_resm(TBROK,
 			 "close(%s) Failed, errno=%d : %s",
 			 TESTDIR, errno, strerror(errno));
 	}

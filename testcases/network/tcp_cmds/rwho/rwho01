@@ -42,6 +42,8 @@
 #             2 ruptime failed no local and remote host in file
 #==============================================================================
 
+PATH=$PATH:$LTPTOOLS
+
 #-----------------------------------------------------------------------
 #
 # FUNCTION:  do_setup
@@ -51,7 +53,8 @@
 do_setup()
 {
 
-    TCtmp=${TCtmp:-$LTPROOT/testcases/bin/$TC${EXEC_SUFFIX}$$}
+    TMPDIR=${TMPDIR:-/tmp}
+    TCtmp=${TCtmp:-$TMPDIR/$TC${EXEC_SUFFIX}$$}
 
     PID=0
     RHOST_PID=0

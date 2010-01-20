@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PATH=$PATH:$LTPTOOLS
+
 if [ -z "$1" ]; then
     echo "Usage: move_pages.sh <test-number>"
     exit 1

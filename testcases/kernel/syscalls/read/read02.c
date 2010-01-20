@@ -168,6 +168,8 @@ void setup(void)
 	/* Pause if that option was specified */
 	TEST_PAUSE;
 
+	tst_tmpdir();
+
 	if ((fd2 = open("/tmp", O_DIRECTORY)) == -1) {
 		tst_brkm(TBROK, cleanup, "open of fd2 failed");
 	}
@@ -204,6 +206,6 @@ void cleanup(void)
 	 * print errno log if that option was specified.
 	 */
 	TEST_CLEANUP;
-	unlink(fname);
+	tst_rmdir();
 	tst_exit();
 }

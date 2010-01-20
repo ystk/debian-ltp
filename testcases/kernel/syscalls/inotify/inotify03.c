@@ -216,7 +216,7 @@ int main(int ac, char **av)
 	if (ret != -1 || errno != EINVAL)
 		tst_resm(TFAIL, "inotify_rm_watch (%d, %d) return %d "
 			 "errno=%d : %s (instead of %d)",
-			 fd_notify, wd, ret, errno, EINVAL, strerror(errno));
+			 fd_notify, wd, ret, errno, strerror(errno), EINVAL);
 	else
 		tst_resm(TPASS, "inotify_rm_watch (%d, %d) return %d "
 			 "errno=%d : %s",

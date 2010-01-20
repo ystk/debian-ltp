@@ -144,6 +144,7 @@ char *bad_addr = 0;
 
 void setup();			/* Main setup function for the tests */
 void cleanup();			/* cleanup function for the test */
+void create_link(const char*, const char*);
 
 int main(int ac, char **av)
 {
@@ -251,15 +252,15 @@ void setup()
 	}
 	ltpuser = getpwnam(nobody_uid);
 	if (setgid(ltpuser->pw_uid) == -1) {
-		tst_resm(TINFO, "setgid failed to "
-			 "to set the effective gid to %d", ltpuser->pw_uid);
-		perror("setgid");
+		tst_brkm(TBROK, cleanup, "setgid failed to "
+						 "to set the effective gid to %d: %s",
+						 ltpuser->pw_uid, strerror(errno));
 	}
 
 	if (seteuid(ltpuser->pw_uid) == -1) {
-		tst_resm(TINFO, "setuid failed to "
-			 "to set the effective uid to %d", ltpuser->pw_uid);
-		perror("setuid");
+		tst_brkm(TBROK, cleanup, "setuid failed to "
+						 "to set the effective uid to %d: %s",
+						 ltpuser->pw_uid, strerror(errno));
 	}
 
 	/* Pause if that option was specified */
@@ -312,10 +313,7 @@ int no_setup()
  */
 int setup1()
 {
-	int fd;			/* file handler for testfile */
-	char Path_name[PATH_MAX];	/* Buffer to hold command string */
-	char Path2_name[PATH_MAX];	/* Buffer for just the path name */
-	char Cmd_buffer[BUFSIZ];	/* Buffer to hold command string */
+	int fd;				/* file handler for testfile */
 
 	/* Creat a testfile and close it */
 	if ((fd = open(TEST_FILE1, O_RDWR | O_CREAT, 0666)) == -1) {
@@ -326,31 +324,13 @@ int setup1()
 		tst_brkm(TBROK, cleanup, "close(%s) Failed", TEST_FILE1);
 	}
 
-	/* Get the current working directory of the process */
-	if (getcwd(Path_name, sizeof(Path_name)) == NULL) {
-		tst_brkm(TBROK | TERRNO, cleanup,
-			 "failed to get the current working directory.");
-	}
-
 	/* Provide permissions for temporary directory */
-	if (chmod(Path_name, 0777) == -1) {
-		tst_brkm(TBROK | TERRNO, cleanup, "chmod(%s, 0777) failed", Path_name);
+	if (chmod(".", 0777) == -1) {
+		tst_brkm(TBROK | TERRNO, cleanup, "chmod(., 0777) failed");
 	}
 
-	strcpy(Path2_name, Path_name);
+	create_link(TEST_FILE1, SFILE1);
 
-	/* Get the path of test file created under temporary directory */
-	strcat(Path_name, "/" TEST_FILE1);
-
-	/* Get the command name to be executed as setuid to root */
-	strcat((char *)Cmd_buffer, main_test_dir);
-	strcat((char *)Cmd_buffer, (const char *)"/create_link ");
-	strcat((char *)Cmd_buffer, Path_name);
-
-	if (system((const char *)Cmd_buffer) != 0) {
-		tst_brkm(TBROK, cleanup,
-			 "Fail to modify %s ownership(s)!", TEST_FILE1);
-	}
 	return 0;
 }
 
@@ -469,4 +449,93 @@ void cleanup()
 
 	/* exit with return code appropriate for results */
 	tst_exit();
+}
+
+
+#define LTPUSER "bin"
+#define LTPGRP "bin"
+
+void create_link(const char* path_name, const char* link_name)
+{
+	struct passwd *ltpuser;		/* password struct for nobody */
+	struct group *ltpgroup;		/* group struct for nobody */
+	uid_t user_uid;			/* user id of nobody */
+	gid_t group_gid;		/* group id of nobody */
+	uid_t old_uid;
+	gid_t old_gid;
+
+	/*
+	 * Get the user id and group id of "ltpuser" user from password
+	 * and group files.
+	 */
+	if ((ltpuser = getpwnam(LTPUSER)) == NULL) {
+		tst_brkm(TBROK, cleanup,
+						 "%s not found in /etc/passwd: %s", LTPUSER, strerror(errno));
+	}
+	if ((ltpgroup = getgrnam(LTPGRP)) == NULL) {
+		tst_brkm(TBROK, cleanup,
+						 "%s not found in /etc/group: %s", LTPGRP, strerror(errno));
+	}
+	user_uid = ltpuser->pw_uid;
+	group_gid = ltpgroup->gr_gid;
+
+	old_uid=geteuid();
+	old_gid=getegid();
+	if(seteuid(0) < 0) {
+		tst_brkm(TBROK|TERRNO, cleanup,
+						 "setuid() to root fails");
+	}
+	if(setegid(0) < 0) {
+		tst_brkm(TBROK|TERRNO, cleanup,
+						 "setgid() to root fails");
+	}
+
+	/*
+	 * Change the ownership of test directory/file specified by
+	 * pathname to that of LTPUSER user_uid and group_gid.
+	 */
+	if (chown(path_name, user_uid, group_gid) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "chown() of %s failed, "
+						 "error %d: %s\n", path_name, errno, strerror(errno));
+	}
+
+	/* Set the process uid to that LTPUSER */
+	if (seteuid(user_uid) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "setuid() to %s fails, error:%d",
+						 LTPUSER, errno);
+	}
+
+	/* Creat a symlink of testfile created above */
+	if (symlink(path_name, link_name) < 0) {
+          tst_brkm(TBROK, cleanup, "change_owner: symlink() of %s Failed, "
+			"errno=%d : %s", path_name, errno, strerror(errno));
+	}
+
+	/* Get the privileges for the next seteuid */
+	if(seteuid(0) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "setuid() to root fails, error:%d",
+						 errno);
+	}
+
+	if(setegid(0) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "setgid() to root fails, error:%d",
+						 errno);
+	}
+
+	if(seteuid(old_uid) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "setuid() to %d fails, error:%d",
+						 old_uid, errno);
+	}
+
+	if(setegid(old_gid) < 0) {
+		tst_brkm(TBROK, cleanup,
+						 "setgid() to %d fails, error:%d",
+						 old_gid, errno);
+	}
+
 }

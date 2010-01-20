@@ -2,6 +2,8 @@
 # Stress test for TCP/IP protocol stack (ICMP)
 #
 
+#ALL: $RHOST $LHOST_HWADDRS $RHOST_HWADDRS
+
 icmp4-uni-basic01 icmp4-uni-basic01
 icmp4-uni-basic02 icmp4-uni-basic02
 icmp4-uni-basic03 icmp4-uni-basic03

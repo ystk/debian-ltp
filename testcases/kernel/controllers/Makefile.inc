@@ -33,8 +33,6 @@ $(LIB): ../$(LIBDIR)
 	    $(MAKE) -C $^ -f "$(abs_srcdir)/$^/Makefile" $$i; \
 	done
 
-all: | $(LIB)
-
 CPPFLAGS		+= -I$(abs_srcdir)/../$(LIBDIR)
 
 LDFLAGS			+= -L$(abs_builddir)/../$(LIBDIR)

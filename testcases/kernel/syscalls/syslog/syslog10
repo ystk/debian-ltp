@@ -34,6 +34,7 @@
 #           the one set above, which should not be logged.       #
 ##################################################################
 
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 

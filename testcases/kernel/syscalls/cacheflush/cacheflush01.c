@@ -69,7 +69,7 @@
 #define __NR_cacheflush		(__NR_Linux + 197)
 #else
 /* Fake linux_syscall_numbers.h */
-#define __NR_cacheflush		0
+#define __NR_cacheflush		-1
 #endif
 
 /* Extern Global Variables */

@@ -40,6 +40,8 @@
 #
 # Return		- zero on success
 #               - non zero on failure. return value from commands ($RC)
+PATH=$PATH:$LTPTOOLS
+
 init()
 {
 

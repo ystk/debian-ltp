@@ -69,7 +69,7 @@ int kPageSize = 4096;
 
 char *usage="-h hours -m minutes -s secs\n";
 
-int anyfail()
+void anyfail(void)
 {
   tst_resm(TFAIL, "Test failed\n");
   tst_rmdir();
@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
                 }
        } 
 
+       tst_sig(NOFORK, NULL, anyfail);
         /*
          *  Plan for death by signal.  User may have specified
          *  a time limit, in which case set an alarm and catch SIGALRM.
@@ -171,15 +172,18 @@ int main(int argc, char **argv) {
              unlink(fname);
              if (count > 0) {
                  printf("Running %d bad page\n", count);
+                 tst_rmdir();
                  return 1;
              }
              count=0;
        }
+       tst_rmdir();
        return 0;
 }
 
 void finish(int sig) {
      printf("mmap-corruption PASSED\n");
+     tst_rmdir();
      exit(0);
 }
 

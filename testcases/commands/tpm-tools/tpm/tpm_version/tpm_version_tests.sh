@@ -17,6 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
+PATH=$PATH:$LTPTOOLS
+
 export TCID=tpm_version
 export TST_TOTAL=1
 export TST_COUNT=1

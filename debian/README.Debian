@@ -1,0 +1,9 @@
+LIMITED SECURITY SUPPORT
+
+This is a test suite, and as such is only intended to be run on
+non-production, single user systems. The scripts use various techniques
+that are exploitable in a context of potentially malicious local users.
+
+The Debian security team does not support using this package on machines
+with untrusted users.
+

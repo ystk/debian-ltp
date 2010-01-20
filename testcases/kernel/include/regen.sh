@@ -27,7 +27,7 @@ cat << EOF > "${output_pid}"
 
 #define syscall(NR, ...) ({ \\
 	int __ret; \\
-	if (NR == 0) { \\
+	if (NR == -1) { \\
 		errno = ENOSYS; \\
 		__ret = -1; \\
 	} else { \\
@@ -75,7 +75,7 @@ for nr in $(awk '{print $1}' "${srcdir}/"*.in | sort -u) ; do
 	nr="__NR_$nr"
 	cat <<-EOF >> "${output_pid}"
 	# ifndef $nr
-	#  define $nr 0
+	#  define $nr -1
 	# endif
 	EOF
 done

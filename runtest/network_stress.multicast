@@ -2,6 +2,8 @@
 # Stress test for TCP/IP protocol stack (Multicast)
 #
 
+#ALL: $RHOST $LHOST_HWADDRS $RHOST_HWADDRS
+
 mcast4-grpope01 mcast4-grpope01
 mcast4-grpope02 mcast4-grpope02
 mcast4-grpope03 mcast4-grpope03

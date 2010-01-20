@@ -25,6 +25,8 @@ export TCID=utimensat01
 export TST_TOTAL=99
 export TST_COUNT=0
 
+PATH=$PATH:$LTPTOOLS
+
 if tst_kvercmp 2 6 22 ; then
        tst_resm TCONF "System kernel version is less than 2.6.22"
        tst_resm TCONF "Cannot execute test"
@@ -36,10 +38,10 @@ RESULT_FILE=$TMPDIR/utimensat.result
 TEST_DIR=$TMPDIR/utimensat_tests
 FILE=$TEST_DIR/utimensat.test_file
 
-TEST_PROG=utimensat01
+TEST_PROG=$LTPROOT/testcases/bin/utimensat01
 
-if [ ! -f $LTPROOT/testcases/bin/$TEST_PROG ]; then
-     echo "${TEST_PROG} 1 WARN : Build/Install was not proper,"
+if [ ! -f $TEST_PROG ]; then
+     tst_resm TWARN "Build/Install was not proper,"
      exit 1;
 fi
 
@@ -64,13 +66,13 @@ setup_file()
     # Make sure any old verion of file is deleted
 
     if test -e $FILE; then
-        sudo chattr -ai $FILE
-        sudo rm -f $FILE
+         chattr -ai $FILE
+         rm -f $FILE
     fi
 
     # Create file and make atime and mtime zero.
 
-    sudo -u $user_tester touch $FILE
+    su $user_tester -c "touch '$FILE'"
     if ! $TEST_PROG -q $FILE 0 0 0 0 > $RESULT_FILE; then
         echo "Failed to set up test file $FILE" 1>&2
         exit 1
@@ -86,19 +88,21 @@ setup_file()
     # Set owner, permissions, and EFAs for file.
 
     if test -n "$2"; then
-        sudo chown $2 $FILE
+         chown $2 $FILE
+    elif [ $(id -ru) -eq 0 ]; then
+        chown nobody $FILE
     fi
-
-    sudo chmod $3 $FILE
+    
+     chmod $3 $FILE
 
     if test -n "$4"; then
-        sudo chattr $4 $FILE
+         chattr $4 $FILE
     fi
 
     # Display file setup, for visual verification
 
     ls -l $FILE | awk '{ printf "Owner=%s; perms=%s; ", $3, $1}'
-    sudo lsattr -l $FILE | sed 's/, /,/g' | awk '{print "EFAs=" $2}'
+     lsattr -l $FILE | sed 's/, /,/g' | awk '{print "EFAs=" $2}'
 }
 
 test_failed()
@@ -209,18 +213,18 @@ run_test()
     echo "Pathname test"
     setup_file $FILE "$1" "$2" "$3"
     cp $LTPROOT/testcases/bin/$TEST_PROG ./
-    CMD="./$TEST_PROG -q $FILE $4"
+    CMD="$TEST_PROG -q $FILE $4"
     echo "$CMD"
-    sudo -u $user_tester $CMD > $RESULT_FILE
+    su $user_tester -c "$CMD" > $RESULT_FILE
     check_result $? $5 $6 $7
     echo
 
     if test $do_read_fd_test -ne 0; then
         echo "Readable file descriptor (futimens(3)) test"
         setup_file $FILE "$1" "$2" "$3"
-        CMD="./$TEST_PROG -q -d $FILE NULL $4"
+        CMD="$TEST_PROG -q -d $FILE NULL $4"
         echo "$CMD"
-        sudo -u $user_tester $CMD > $RESULT_FILE
+        su $user_tester -c "$CMD" > $RESULT_FILE
         check_result $? $5 $6 $7
         echo
     fi
@@ -231,23 +235,20 @@ run_test()
     if test $do_write_fd_test -ne 0; then
         echo "Writable file descriptor (futimens(3)) test"
         setup_file $FILE "$1" "$2" "$3"
-        CMD="./$TEST_PROG -q -w -d $FILE NULL $4"
+        CMD="$TEST_PROG -q -w -d $FILE NULL $4"
         echo "$CMD"
-        sudo -u $user_tester $CMD > $RESULT_FILE
+        su $user_tester -c "$CMD" > $RESULT_FILE
         check_result $? $5 $6 $7
         echo
     fi
 
-    sudo chattr -ai $FILE
-    sudo rm -f $FILE
+     chattr -ai $FILE
+     rm -f $FILE
 }
 #=====================================================================
 
 user_tester=nobody
-sudo -u $user_tester mkdir -p $TEST_DIR
-
-chown root $LTPROOT/testcases/bin/$TEST_PROG
-chmod ugo+x,u+s $LTPROOT/testcases/bin/$TEST_PROG
+su $user_tester -c "mkdir -p $TEST_DIR"
 
 #=====================================================================
 
@@ -259,22 +260,22 @@ echo "Testing read-only file, owned by self"
 echo
 
 echo "***** Testing times==NULL case *****"
-run_test "" 400 "" "" SUCCESS y y
+run_test -W "" 400 "" "" SUCCESS y y
 
 echo "***** Testing times=={ UTIME_NOW, UTIME_NOW } case *****"
-run_test "" 400 "" "0 n 0 n" SUCCESS y y
+run_test -W "" 400 "" "0 n 0 n" SUCCESS y y
 
 echo "***** Testing times=={ UTIME_OMIT, UTIME_OMIT } case *****"
-run_test "" 400 "" "0 o 0 o" SUCCESS n n
+run_test -W "" 400 "" "0 o 0 o" SUCCESS n n
 
 echo "***** Testing times=={ UTIME_NOW, UTIME_OMIT } case *****"
-run_test "" 400 "" "0 n 0 o" SUCCESS y n
+run_test -W "" 400 "" "0 n 0 o" SUCCESS y n
 
 echo "***** Testing times=={ UTIME_OMIT, UTIME_NOW } case *****"
-run_test "" 400 "" "0 o 0 n" SUCCESS n y
+run_test -W "" 400 "" "0 o 0 n" SUCCESS n y
 
 echo "***** Testing times=={ x, y } case *****"
-run_test "" 400 "" "1 1 1 1" SUCCESS y y
+run_test -W "" 400 "" "1 1 1 1" SUCCESS y y
 
 echo "============================================================"
 
@@ -283,22 +284,22 @@ echo "Testing read-only file, not owned by self"
 echo
 
 echo "***** Testing times==NULL case *****"
-run_test root 400 "" "" EACCES
+run_test -RW root 400 "" "" EACCES
 
 echo "***** Testing times=={ UTIME_NOW, UTIME_NOW } case *****"
-run_test root 400 "" "0 n 0 n" EACCES
+run_test -RW root 400 "" "0 n 0 n" EACCES
 
 echo "***** Testing times=={ UTIME_OMIT, UTIME_OMIT } case *****"
-run_test root 400 "" "0 o 0 o" SUCCESS n n
+run_test -RW root 400 "" "0 o 0 o" SUCCESS n n
 
 echo "***** Testing times=={ UTIME_NOW, UTIME_OMIT } case *****"
-run_test root 400 "" "0 n 0 o" EPERM
+run_test -RW root 400 "" "0 n 0 o" EPERM
 
 echo "***** Testing times=={ UTIME_OMIT, UTIME_NOW } case *****"
-run_test root 400 "" "0 o 0 n" EPERM
+run_test -RW root 400 "" "0 o 0 n" EPERM
 
 echo "***** Testing times=={ x, y } case *****"
-run_test root 400 "" "1 1 1 1" EPERM
+run_test -RW root 400 "" "1 1 1 1" EPERM
 
 echo "============================================================"
 

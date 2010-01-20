@@ -22,6 +22,8 @@
 ##                                                                            ##
 ################################################################################
 
+PATH=$PATH:$LTPTOOLS
+
 cd $LTPROOT/testcases/bin
 
 export TCID="memcg_regression_test"
@@ -90,12 +92,12 @@ check_kernel_bug()
 #---------------------------------------------------------------------------
 test_1()
 {
-	mkdir memcg/0/
-	echo 0 > memcg/0/memory.limit_in_bytes
+	mkdir $MEMCG_DIR/0/
+	echo 0 > $MEMCG_DIR/0/memory.limit_in_bytes
 
 	./memcg_test_1
 
-	rmdir memcg/0/
+	rmdir $MEMCG_DIR/0/
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -116,15 +118,15 @@ test_2()
 	pid1=$!
 	sleep 1
 
-	mkdir memcg/0
-	echo $pid1 > memcg/0/tasks
+	mkdir $MEMCG_DIR/0
+	echo $pid1 > $MEMCG_DIR/0/tasks
 
 	# let pid1 'test_2' allocate memory
 	/bin/kill -SIGUSR1 $pid1
 	sleep 1
 
 	# shrink memory
-	echo 1 > memcg/0/memory.limit_in_bytes 2>&1 &
+	echo 1 > $MEMCG_DIR/0/memory.limit_in_bytes 2>&1 &
 	pid2=$!
 
 	# check if 'echo' will exit and exit with failure
@@ -136,9 +138,9 @@ test_2()
 			if [ $? -eq 0 ]; then
 				tst_resm TFAIL "echo should return failure"
 				failed=1
-				kill -9 $pid1 $pid2 > /dev/null 2>&1
+				kill -s KILL $pid1 $pid2 > /dev/null 2>&1
 				wait $pid1 $pid2
-				rmdir memcg/0
+				rmdir $MEMCG_DIR/0
 			fi
 			break
 		fi
@@ -151,9 +153,9 @@ test_2()
 		tst_resm TPASS "EBUSY was returned as expected"
 	fi
 
-	kill -9 $pid1 $pid2 > /dev/null 2>&1
+	kill -s KILL $pid1 $pid2 > /dev/null 2>&1
 	wait $pid1 $pid2 > /dev/null 2>&1
-	rmdir memcg/0
+	rmdir $MEMCG_DIR/0
 }
 
 #---------------------------------------------------------------------------
@@ -164,15 +166,15 @@ test_2()
 #---------------------------------------------------------------------------
 test_3()
 {
-	mkdir memcg/0
-	for pid in `cat memcg/tasks`; do
-		echo $pid > memcg/0/tasks 2> /dev/null
+	mkdir $MEMCG_DIR/0
+	for pid in `cat $MEMCG_DIR/tasks`; do
+		echo $pid > $MEMCG_DIR/0/tasks 2> /dev/null
 	done
 
-	for pid in `cat memcg/0/tasks`; do
-		echo $pid > memcg/tasks 2> /dev/null
+	for pid in `cat $MEMCG_DIR/0/tasks`; do
+		echo $pid > $MEMCG_DIR/tasks 2> /dev/null
 	done
-	rmdir memcg/0
+	rmdir $MEMCG_DIR/0
 
 	check_kernel_bug
 	if [ $? -eq 1 ]; then
@@ -203,12 +205,12 @@ test_4()
 
 # main
 
-mkdir memcg/
+MEMCG_DIR=$(mktemp -dt memcgXXXXXXXX)
 
 for cur in $(seq 1 $TST_TOTAL); do
 	export TST_COUNT=$cur
 
-	mount -t cgroup -o memory xxx memcg/
+	mount -t cgroup -o memory xxx $MEMCG_DIR/
 	if [ $? -ne 0 ]; then
 		tst_resm TFAIL "failed to mount memory subsytem"
 		continue
@@ -216,10 +218,10 @@ for cur in $(seq 1 $TST_TOTAL); do
 
 	test_$cur
 
-	umount memcg/
+	umount $MEMCG_DIR/
 done
 
-rmdir memcg/
+rmdir $MEMCG_DIR/
 
 exit $failed
 

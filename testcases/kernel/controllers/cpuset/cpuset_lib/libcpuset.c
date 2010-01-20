@@ -3083,21 +3083,39 @@ done:
 #define MPOL_F_NODE (1<<0) /* return next interleave node or node of addr */
 #define MPOL_F_ADDR (1<<1) /* look up vma using address */
 
+#define STUB_SYSCALL														\
+	{																							\
+		errno=ENOSYS;																\
+		return -1;																	\
+	}
+
 static int sched_setaffinity(pid_t pid, unsigned len, unsigned long *mask)
+#if defined __NR_sched_setaffinity
 {
 	return syscall(__NR_sched_setaffinity, pid, len, mask);
 }
+#else
+STUB_SYSCALL
+#endif
 
 static int get_mempolicy(int *policy, unsigned long *nmask,
 			unsigned long maxnode, void *addr, int flags)
+#if defined __NR_get_mempolicy
 {
 	return syscall(__NR_get_mempolicy, policy, nmask, maxnode, addr, flags);
 }
+#else
+STUB_SYSCALL
+#endif
 
 static int set_mempolicy(int mode, unsigned long *nmask, unsigned long maxnode)
+#if defined __NR_set_mempolicy
 {
 	return syscall(__NR_set_mempolicy, mode, nmask, maxnode);
 }
+#else
+STUB_SYSCALL
+#endif
 
 struct cpuset_placement {
 	struct bitmask *cpus;

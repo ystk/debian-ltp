@@ -151,6 +151,9 @@ static   int    pages_num = NUMPAGES; /* number of pages to use for tests     */
 char *TCID = "mmstress";
 int TST_TOTAL = 6;
 
+static void setup();
+static void cleanup();
+
 /******************************************************************************/
 /*                                                                            */
 /* Function:    sig_handler                                                   */
@@ -172,13 +175,12 @@ sig_handler(int signal) /* signal number, set to handle SIGALRM               */
 {
     if (signal != SIGALRM)
     {
-        fprintf(stderr, "sig_handlder(): unexpected signal caught [%d]\n",
-            signal);
-        exit(-1);
+      tst_brkm(TBROK, cleanup, "sig_handlder(): unexpected signal caught [%d]\n",
+               signal);
     }
     else
 	tst_resm(TPASS, "Test ended, success");
-    exit(0);
+    cleanup();
 }
 
 
@@ -236,8 +238,7 @@ set_timer(int run_time)         /* period for which test is intended to run   */
 
     if (setitimer(ITIMER_REAL, &timer, NULL))
     {
-        perror("set_timer(): setitimer()");
-        exit(1);
+      tst_brkm(TBROK, cleanup, "set_timer(): setitimer()");
     }
 }
 
@@ -327,20 +328,6 @@ remove_files(char *filename, char * addr)    /* name of the file that is to be r
 		 		     perror("map_and_thread(): munmap()");
 		 		     return FAILED;
 		     }
-    if (strcmp(filename, "NULL") && strcmp(filename, "/dev/zero"))
-    {
-        if (unlink(filename))
-        {
-            perror("map_and_thread(): ulink()");
-            return FAILED;
-        }
-    }
-    else
-    {
-        if (verbose_print)
-            tst_resm(TINFO, "file %s removed", filename);
-       
-    }     
     return SUCCESS;
 }
 
@@ -505,13 +492,7 @@ map_and_thread(
     {
         if (pthread_join(pthread_ids[thrd_ndx], (void **)th_status))
         {
-            perror("map_and_thread(): pthread_join()");
-            free(empty_buf);
-            fflush(NULL);
-            remove_files(tmpfile, map_addr);
-            close(fd);
-            retinfo->status = FAILED;
-            return retinfo;
+          tst_brkm(TBROK, cleanup, "map_and_thread(): pthread_join(): %s", strerror(errno));
         }
         else
         {
@@ -523,7 +504,8 @@ map_and_thread(
                 free(empty_buf);                         
                 remove_files(tmpfile, map_addr);
                 close(fd);
-                exit(1);
+                retinfo->status = FAILED;
+                return retinfo;
             }
         }  
     }
@@ -574,11 +556,17 @@ static int
 test1()
 {
     RETINFO_t retval;    /* contains info relating to test status          */
+    int fd;
 
     tst_resm(TINFO, "test1: Test case tests the race condition between "
            "simultaneous read faults in the same address space.");
+    if((fd=open("./tmp.file.1", O_CREAT | O_EXCL, 0666))==-1)
+      tst_brkm(TBROK, cleanup, "Couldn't create temporary file: %s", strerror(errno));
+    close(fd);
+
     map_and_thread("./tmp.file.1", thread_fault, READ_FAULT, NUMTHREAD,
                    &retval);
+    unlink("./tmp.file.1");
     return (retval.status);
 }
 
@@ -603,11 +591,17 @@ static int
 test2()
 {
     RETINFO_t retval;    /* contains test stats information               */
+    int fd;
 
     tst_resm(TINFO, "test2: Test case tests the race condition between "
        "simultaneous write faults in the same address space.");
+    if((fd=open("./tmp.file.2", O_CREAT | O_EXCL, 0666))==-1)
+      tst_brkm(TBROK, cleanup, "Couldn't create temporary file: %s", strerror(errno));
+    close(fd);
+
     map_and_thread("./tmp.file.2", thread_fault, WRITE_FAULT, NUMTHREAD,
                    &retval);
+    unlink("./tmp.file.2");
     return (retval.status);
 }
 
@@ -632,10 +626,16 @@ static int
 test3()
 {
     RETINFO_t retval;    /* contains test stats information                   */
+    int fd;
 
     tst_resm(TINFO, "test3: Test case tests the race condition between "
            "simultaneous COW faults in the same address space.");
+    if((fd=open("./tmp.file.3", O_CREAT | O_EXCL, 0666))==-1)
+      tst_brkm(TBROK, cleanup, "Couldn't create temporary file: %s", strerror(errno));
+    close(fd);
+
     map_and_thread("./tmp.file.3", thread_fault, COW_FAULT, NUMTHREAD, &retval);
+    unlink("./tmp.file.3");
     return (retval.status);
 }
 
@@ -844,11 +844,6 @@ int
 main(int   argc,     /* number of command line parameters                     */
      char  **argv)   /* pointer to the array of the command line parameters.  */
 {
-    extern char *optarg;  /* getopt() function global variables               */
-    extern int   optind;  /* index into argument                              */
-    extern int   opterr;  /* optarg error detection                           */
-    extern int   optopt;  /* stores bad option passed to the program          */
-
     static char *version_info = "mmstress V1.00 04/17/2001";
                           /* version of this program                          */
     int    (*(test_ptr)[])() =   
@@ -857,31 +852,12 @@ main(int   argc,     /* number of command line parameters                     */
     int    ch;                      /* command line flag character            */
     int    test_num     = 0;        /* test number that is to be run          */
     int    test_time    = 0;        /* duration for which test is to be run   */
-    int    sig_ndx      = 0;        /* index into signal handler structure.   */
     int    run_once     = TRUE;     /* test/tests are run once by default.    */
     char   *prog_name   = argv[0];  /* name of this program                   */
     int    rc           = 0;        /* return value from tests.  0 - success  */
     int    global_rc    = 0;        /* return value from tests.  0 - success  */
     int    version_flag = FALSE;    /* printf the program version             */
-    struct sigaction sigptr;        /* set up signal, for interval timer      */
 
-    static struct signal_info
-    {
-        int  signum;    /* signal number that hasto be handled                */
-        char *signame;  /* name of the signal to be handled.                  */
-    }
-    sig_info[] =  {     {SIGHUP,"SIGHUP"},
-                        {SIGINT,"SIGINT"},
-                        {SIGQUIT,"SIGQUIT"},
-                        {SIGABRT,"SIGABRT"},
-                        {SIGBUS,"SIGBUS"},
-                        {SIGSEGV,"SIGSEGV"},
-                        {SIGALRM, "SIGALRM"},
-                        {SIGUSR1,"SIGUSR1"},
-                        {SIGUSR2,"SIGUSR2"},
-                        {SIGENDSIG,"ENDSIG"}
-                   };
-   
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
@@ -936,29 +912,13 @@ main(int   argc,     /* number of command line parameters                     */
         }
     }
 
+    setup();
+
     /* duration for which the tests have to be run. test_time is converted to */
     /* corresponding seconds and the tests are run as long as the current time*/
     /* is less than the required time and test are successul (ie rc = 0)      */
-   
+
     set_timer(test_time);
-
-    /* set up signals */
-    sigptr.sa_handler = (void (*)(int signal))sig_handler;
-    sigfillset(&sigptr.sa_mask);
-    sigptr.sa_flags = 0;
-    for (sig_ndx = 0; sig_info[sig_ndx].signum != -1; sig_ndx++)
-    {
-        sigaddset(&sigptr.sa_mask, sig_info[sig_ndx].signum);
-
-        if (sigaction(sig_info[sig_ndx].signum, &sigptr,
-                      (struct sigaction *)NULL) == SIGENDSIG)
-        {
-            perror( "main(): sigaction()" );
-            fprintf(stderr, "could not set handler for SIGALRM, errno = %d\n",
-                    errno);
-            exit(EXIT_FAILURE);
-        }
-    }
 
     /*************************************************/
     /*   The way this loop was, 5 of 6 tests could fail,
@@ -983,24 +943,29 @@ main(int   argc,     /* number of command line parameters                     */
         }
         else
         {
-            global_rc = (test_num > MAXTEST) ?
-		  fprintf(stderr,
-                            "Invalid test number, must be in range [1 - %d]\n",
-                             MAXTEST):
-                  test_ptr[test_num]();
+          if(test_num > MAXTEST)
+            tst_brkm(TBROK, cleanup, "Invalid test number %d, must be in range [1 - %d]\n", test_num, MAXTEST);
+          if(test_ptr[test_num]())
+            tst_resm(TPASS, "Test passed");
+          else
+            tst_resm(TFAIL, "Test failed");
         }
-
-        if (global_rc != SUCCESS) {
-            tst_resm(TFAIL, "Test Failed");
-            exit(global_rc);
-        }
-
     } while ((TRUE) && (!run_once));
 
-    if (global_rc != SUCCESS) {
-        tst_resm(TFAIL, "Test Failed");
-    } else {
-        tst_resm(TPASS, "Test Passed");
-    }
-    exit(global_rc);
+    cleanup();
+}
+
+static void setup()
+{
+  tst_tmpdir();
+
+  tst_sig(FORK, sig_handler, NULL);
+
+}
+
+static void cleanup()
+{
+  tst_rmdir();
+
+  tst_exit();
 }

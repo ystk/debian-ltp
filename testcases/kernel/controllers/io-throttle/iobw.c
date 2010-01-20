@@ -42,7 +42,7 @@
 
 #define align(x,a)		__align_mask(x,(typeof(x))(a)-1)
 #define __align_mask(x,mask)	(((x)+(mask))&~(mask))
-#define kb(x)			((x) >> 10)
+#define kb(x)                  ((x) >> 10)
 
 const char usage[] = "Usage: iobw [-direct] threads chunk_size data_size\n";
 const char child_fmt[] =
@@ -92,7 +92,7 @@ static void thread(int id)
 	if (ret < 0) {
 		fprintf(stderr,
 			"ERROR: task %d couldn't allocate %lu bytes (%s)\n",
-			id, chunk_size, strerror(errno));
+                       id, chunk_size, strerror(errno));
 		exit(1);
 	}
 	memset(buf, 0xaa, chunk_size);

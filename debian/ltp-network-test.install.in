@@ -1,0 +1,14 @@
+usr/lib/ltp/runtest/ipv6_expect
+usr/lib/ltp/runtest/ipv6_lib
+usr/lib/ltp/runtest/ipv6_noexpect
+usr/lib/ltp/runtest/nfs
+usr/lib/ltp/runtest/sctp
+usr/lib/ltp/runtest/tcp_cmds
+usr/lib/ltp/runtest/tcp_cmds_noexpect
+usr/lib/ltp/runtest/multicast
+usr/lib/ltp/runtest/rpc
+usr/lib/ltp/runtest/network_commands
+usr/lib/ltp/runtest/network_stress.*
+usr/lib/ltp/runtest/tcp_cmds_addition
+usr/lib/ltp/testcases/bin/datafiles
+../../testcases/network/stress/README usr/share/doc/ltp-network-test/README.network_stress

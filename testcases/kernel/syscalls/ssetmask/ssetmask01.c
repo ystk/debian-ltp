@@ -128,15 +128,15 @@ int main(int ac, char **av)
 	for (lc = 0; TEST_LOOPING(lc); ++lc) {
 		Tst_count = 0;
 		for (testno = 0; testno < TST_TOTAL; ++testno) {
-			syscall(__NR_ssetmask, SIGALRM);
+			syscall(__NR_ssetmask, sigmask(SIGALRM));
 			TEST(syscall(__NR_sgetmask));	//call ssetmask()
-			if (TEST_RETURN != SIGALRM) {
+			if (TEST_RETURN != sigmask(SIGALRM)) {
 				tst_resm(TFAIL|TTERRNO, "sgetmask() failed");
 				cleanup();
 				tst_exit();
 			}
-			TEST(syscall(__NR_ssetmask, SIGUSR1));	//call ssetmask()
-			if (TEST_RETURN != SIGALRM) {
+			TEST(syscall(__NR_ssetmask, sigmask(SIGUSR1)));	//call ssetmask()
+			if (TEST_RETURN != sigmask(SIGALRM)) {
 				tst_resm(TFAIL|TTERRNO, "ssetmask() failed");
 				cleanup();
 				tst_exit();

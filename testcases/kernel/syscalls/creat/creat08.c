@@ -104,6 +104,8 @@ int main(int ac, char **av)
 		tst_exit();
 	}
 
+	tst_tmpdir();
+
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
 		local_flag = PASSED;
@@ -470,7 +472,8 @@ int main(int ac, char **av)
 		 *system("groupdel,group2");
 		 */
 	}			/* end for */
-	return 0;
+	tst_rmdir();
+	tst_exit();
 }
 
 int issu()

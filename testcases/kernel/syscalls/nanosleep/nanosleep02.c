@@ -273,6 +273,7 @@ void do_child()
 				 (intmax_t)timereq.tv_sec, timereq.tv_nsec);
 			exit(1);
 		}
+		exit(0);
 	} else {
 		tst_resm(TPASS, "call succeeded");
 		exit(0);

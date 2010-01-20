@@ -91,7 +91,7 @@ test04()
 	RC=0
 	SUFFIX=""
 	MLS=x`cat /selinux/mls`
-	if [ "$MLS" == "x1" ]
+	if [ "$MLS" = "x1" ]
 	then
 	    SUFFIX=":s0"
 	fi
@@ -118,7 +118,7 @@ test05()
 	RC=0
 	SUFFIX=""
 	MLS=x`cat /selinux/mls`
-	if [ "$MLS" == "x1" ]
+	if [ "$MLS" = "x1" ]
 	then
 	    SUFFIX=":s0"
 	fi

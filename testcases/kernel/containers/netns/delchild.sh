@@ -50,7 +50,7 @@ export TST_TOTAL
     
     debug "INFO: Deleting the child NS created.. "
     debug "INFO: Killing processes $sshpid $pid"
-    kill -9 $sshpid $pid > /dev/null 2>&1
+    kill -s KILL $sshpid $pid > /dev/null 2>&1
     sleep 1
     
     ls /sys/class/net > /tmp/sys_aftr_child_killed

@@ -132,6 +132,9 @@ int main(int ac, char *av[])
 		tst_resm(TINFO, "Must be root to run this test.");
 		cleanup();
 	}
+
+	tst_tmpdir();
+
 	for (lc = 0; TEST_LOOPING(lc); lc++) {
 
 		local_flag = PASSED;

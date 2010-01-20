@@ -28,6 +28,8 @@ INSTALL_TARGETS		:= nm01 *.c
 
 MAKE_TARGETS		:= $(patsubst $(abs_srcdir)/%.c,%.obj,$(wildcard $(abs_srcdir)/*.c))
 
+INSTALL_MODE = $(if $(filter %nm01,$@), 0755, 0644)
+
 $(MAKE_TARGETS): %.obj: %.o
 	mv $^ $@
 

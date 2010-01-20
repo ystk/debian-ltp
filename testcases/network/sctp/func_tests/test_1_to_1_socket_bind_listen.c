@@ -71,6 +71,7 @@
 #include <netinet/sctp.h>
 #include <sys/uio.h>
 #include <sctputil.h>
+#include <pwd.h>
 
 #define SCTP_RESERVED_PORT 7
 #define SCTP_INV_LOOPBACK "172.31.43.112"
@@ -87,12 +88,21 @@ main(int argc, char *argv[])
 	int uid;
 
         struct sockaddr_in bind_addr;
+	struct passwd* nobody;
 
 	/* Rather than fflush() throughout the code, set stdout to
          * be unbuffered.
          */
         setvbuf(stdout, NULL, _IONBF, 0);
         setvbuf(stderr, NULL, _IONBF, 0);
+
+	/* Yield root to correctly test bind to the reserved ports */
+	if( getuid()==0 ) {
+	  if( (nobody=getpwnam("nobody")) == NULL )
+	    tst_brkm(TBROK, tst_exit, "Could not find user nobody: %s", strerror(errno));
+	  if( setuid(nobody->pw_uid) == -1 )
+	    tst_brkm(TBROK, tst_exit, "Could not switch to user nobody: %s", strerror(errno));
+	}
 
         pf_class = PF_INET;
 

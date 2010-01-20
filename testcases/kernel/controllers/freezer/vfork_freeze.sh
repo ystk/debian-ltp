@@ -48,9 +48,6 @@ fi
 
 . "${CGROUPS_TESTROOT}/libcgroup_freezer"
 SETS_DEFAULTS="${TCID=vfork_freeze.sh} ${TST_COUNT=1} ${TST_TOTAL=1}"
-declare -r TCID
-declare -r TST_COUNT
-declare -r TST_TOTAL
 export TCID TST_COUNT TST_TOTAL
 
 TMPDIR=${TMPDIR:=/tmp}
@@ -60,7 +57,7 @@ TMPLOG="$TMPDIR/${0##*/}.$$.txt"
 # create new processes. The vfork'ed processes then sleep, causing the
 # parent process ($sample_proc) to enter the TASK_UNINTERRUPTIBLE state
 # for the duration of the sleep.
-function vfork_sleep()
+vfork_sleep()
 {
 	vfork -s$sample_sleep 1 -f "$TMPLOG" &
 	local rc=$?

@@ -34,11 +34,13 @@ export TST_COUNT=1
 TFAILCNT=0
 RC=0
 
+PATH=$PATH:$LTPTOOLS:$LTPROOT/testcases/bin
+
 # check for HT/SMP System
 tst_resm TINFO "Begin: SMT/SMP Affinity"
 
-if [ -f ./ht_enabled ];then
-	./ht_enabled
+if which ht_enabled > /dev/null 2>&1;then
+	ht_enabled
 	ret_value=$?
 
 	if [ $ret_value -ne 0 ];then
@@ -68,8 +70,8 @@ else
 			 | sed 's/ //' | uniq`
 
 	if [ $cpu_cores -ge 1 ];then
-		if [ -f ./ht_affinity ];then
-			./ht_affinity
+		  if which ht_affinity > /dev/null 2>&1;then
+			ht_affinity
 		else
 			tst_resm TBROK "ht_affinity:File not found"
 			tst_resm TINFO "End: SMT/SMP Affinity"

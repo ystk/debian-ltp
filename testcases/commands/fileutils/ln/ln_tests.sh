@@ -36,6 +36,8 @@
 #
 # Return		- zero on success
 #               - non zero on failure. return value from commands ($RC)
+PATH=$PATH:$LTPTOOLS
+
 init()
 {
 
@@ -58,12 +60,12 @@ init()
 	fi
 
 	
-	$LTPBIN/tst_resm TINFO "INIT: Inititalizing tests."
+	tst_resm TINFO "INIT: Inititalizing tests."
 
 	which ln > $LTPTMP/tst_ln.err 2>&1 || RC=$?
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_brk TBROK $LTPTMP/tst_ln.err NULL \
+		tst_brk TBROK $LTPTMP/tst_ln.err NULL \
 			"Test #1: ln command does not exist. Reason:"
 		return $RC
 	fi
@@ -71,7 +73,7 @@ init()
 	mkdir -p $LTPTMP/tst_ln.tmp > $LTPTMP/tst_ln.err 2>&1 || RC=$? 
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_brk TBROK $LTPTMP/tst_ln.err NULL \
+		tst_brk TBROK $LTPTMP/tst_ln.err NULL \
 			"Test #1: failed creating temp directory. Reason:"
 		return $RC
 	fi
@@ -98,15 +100,15 @@ creat_dirnfiles()
 	fcnt=0      # index into number of files created in loop
 	RC=0        # return value from commands
 
-	$LTPBIN/tst_resm TINFO "Test #$1: Creating $numdirs directories."
-	$LTPBIN/tst_resm TINFO "Test #$1: filling each dir with $numfiles files".
+	tst_resm TINFO "Test #$1: Creating $numdirs directories."
+	tst_resm TINFO "Test #$1: filling each dir with $numfiles files".
 	while [ $dircnt -lt $numdirs ]
 	do
 		dirname=$dirname/d.$dircnt
         mkdir -p $dirname  > $LTPTMP/tst_ln.err 2>&1 || RC=$?
 		if [ $RC -ne 0 ]
 		then
-			$LTPBIN/tst_brk TBROK $LTPTMP/tst_ln.err NULL \
+			tst_brk TBROK $LTPTMP/tst_ln.err NULL \
 			"Test #$1: while creating $numdirs dirs.  Reason"
 			return $RC
 		fi
@@ -116,7 +118,7 @@ creat_dirnfiles()
 			touch $dirname/f.$fcnt
 			if [ $RC -ne 0 ]
 			then
-				$LTPBIN/tst_brk TBROK $LTPTMP/tst_ln.err NULL \
+				tst_brk TBROK $LTPTMP/tst_ln.err NULL \
 				"Test #$1: while creating $numdirs dirs.  Reason"
 				return $RC
 			fi
@@ -191,7 +193,7 @@ test01()
 	dircnt=0
     fcnt=0
 
-	$LTPBIN/tst_resm TINFO \
+	tst_resm TINFO \
 		"Test #1: ln -s will make symbolic links instead of hard links"
 
 	creat_dirnfiles 1 $numdirs $numfiles $LTPTMP/tst_ln.tmp || RC=$?
@@ -203,32 +205,32 @@ test01()
 	ln -s $LTPTMP/tst_ln.tmp $LTPTMP/tst_ln.tmp1 > $LTPTMP/tst_ln.err 2>&1 || RC=$?
     if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_res TFAIL $LTPTMP/tst_ln.err \
+		tst_res TFAIL $LTPTMP/tst_ln.err \
 		"Test #1: ln -s failed, ln command  returned $RC. Reason:"
 		return $RC
 	fi
 
-	$LTPBIN/tst_resm TINFO "Test #1: creating output file"
+	tst_resm TINFO "Test #1: creating output file"
 	ls -R $LTPTMP/tst_ln.tmp1 > $LTPTMP/tst_ln.out 2>&1
 
-	$LTPBIN/tst_resm TINFO "Test #1: creating expected output file"
+	tst_resm TINFO "Test #1: creating expected output file"
 	creat_expout $numdirs $numfiles $LTPTMP/tst_ln.tmp1
 
-	$LTPBIN/tst_resm TINFO \
+	tst_resm TINFO \
 	    "Test #1: comparing expected out and actual output file"
 	diff -w -B $LTPTMP/tst_ln.out $LTPTMP/tst_ln.exp > $LTPTMP/tst_ln.err 2>&1 \
 		|| RC=$?
 	if [ $RC -ne 0 ]
 	then
-		$LTPBIN/tst_res TFAIL $LTPTMP/tst_ln.err \
+		tst_res TFAIL $LTPTMP/tst_ln.err \
 			"Test #1: ln -s failed. Reason:"
 	else
-		$LTPBIN/tst_resm TINFO "Test #1: expected same as actual"
+		tst_resm TINFO "Test #1: expected same as actual"
 		if [ -L $LTPTMP/tst_ln.tmp1 ]
 		then
-			$LTPBIN/tst_resm TPASS "Test #1: ln -s success"
+			tst_resm TPASS "Test #1: ln -s success"
 		else
-			$LTPBIN/tst_resm TFAIL "Test #1: $LTPTMP/tst_ln.tmp1 not a link"
+			tst_resm TFAIL "Test #1: $LTPTMP/tst_ln.tmp1 not a link"
 			return $(($RC+1))
 	    fi
 	fi

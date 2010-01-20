@@ -32,6 +32,7 @@
 #
 set +x
 
+PATH=$PATH:$LTPTOOLS
 
 # Function:		init
 #

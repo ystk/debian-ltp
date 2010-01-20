@@ -34,6 +34,7 @@
 #            facility.                                           #
 #         o Send the message and grep for the entry in log file. #
 ##################################################################
+PATH=$PATH:$LTPTOOLS
 #number of seconds to wait for another syslog test to complete
 wait_count=60
 

@@ -28,7 +28,7 @@ export TST_TOTAL=194
 export TST_COUNT=1
 
 export TESTROOT=`pwd`
-export LOGFILE=$LTPROOT/output/cgroup_fj_log_`date +%F`.txt
+export LOGFILE=/var/tmp/cgroup_fj_log_`date +%F`.txt
 export TMPFILE=$TESTROOT/tmp_tasks
 export CASENO1=0
 export CASENO2=0

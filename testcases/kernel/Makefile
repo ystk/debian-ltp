@@ -32,7 +32,7 @@ else
 SUBDIRS		:= syscalls
 endif
 
-trunk-all: $(includedir)/linux_syscall_numbers.h
+$(foreach tgt,all install,$(addprefix trunk-subdir-$(tgt)--,$(SUBDIRS))): %: $(includedir)/linux_syscall_numbers.h
 
 trunk-clean:: | linux-syscall-numbers-clean
 

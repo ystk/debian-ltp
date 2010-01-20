@@ -92,7 +92,7 @@ kill_all_pid()
 {
 	while read pid_to_be_killed
 	do
-		kill -9 $pid_to_be_killed
+		kill -s KILL $pid_to_be_killed
 	done
 }
 
@@ -570,7 +570,7 @@ case18()
 	echo 0x8000000000000000 > "$CPUCTL/1/cpu.shares"
 	pid=$(creat_process)
 	echo $pid > "$CPUCTL/1/tasks"
-	kill -9 $pid
+	kill -s KILL $pid
 	return 0
 }
 
@@ -585,7 +585,7 @@ case19()
 	cpu_usage=$(get_cpu_usage $pid)
 	echo "pid $pid cpu_usage $cpu_usage"
 
-	kill -9 $pid $pid_other
+	kill -s KILL $pid $pid_other
 	expr 96 \< "$cpu_usage" \& "$cpu_usage" \< 103 > /dev/null 2>&1 || return 1
 	return 0
 }
@@ -601,7 +601,7 @@ case20()
 	cpu_usage=$(get_cpu_usage $pid)
 	echo "pid $pid cpu_usage $cpu_usage"
 
-	kill -9 $pid $pid_other
+	kill -s KILL $pid $pid_other
 	expr 96 \< "$cpu_usage" \& "$cpu_usage" \< 103 > /dev/null 2>&1 || return 1
 	return 0
 }
@@ -632,7 +632,7 @@ case21()
 		: $(( top_times+=1 ))
 	done
 
-	kill -9 $pid $loop_pid > /dev/null 2>&1
+	kill -s KILL $pid $loop_pid > /dev/null 2>&1
 	wait $pid $loop_pid >/dev/null 2>&1
 	sleep 2
 	kill_all_pid < "$CPUCTL/1/2/tasks"  >/dev/null 2>&1

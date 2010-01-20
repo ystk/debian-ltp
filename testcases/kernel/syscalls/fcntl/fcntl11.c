@@ -271,18 +271,23 @@ void child_get(struct flock *l)
 		tst_resm(TFAIL, "couldn't get message from parent");
 		cleanup();
 	} else if (l->l_type == (short)STOP) {
-		exit(0);
+		tst_exit();
 	}
 }
 
 void stop_child()
 {
 	struct flock fl;
+	int status;
 
 	(void)signal(SIGCLD, (void (*)())SIG_DFL);
 	fl.l_type = STOP;
 	parent_put(&fl);
-	wait(0);
+	while(errno = 0, wait(&status)==-1 && errno==EINTR);
+	if(errno != 0)
+		tst_resm(TBROK, "Wait for child failed: %s", strerror(errno));
+	else if(!WIFEXITED(status) || WEXITSTATUS(status))
+		tst_resm(TBROK, "Child exited abnormally: 0x%x", status);
 }
 
 void catch_child()
@@ -378,9 +383,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 1: FAILED");
+			tst_resm(TFAIL, "Test block 1: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 1 : PASSED");
+			tst_resm(TPASS, "Test block 1 : PASSED");
 		}
 		tst_resm(TINFO, "Exit block 1");
 
@@ -428,9 +433,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 2: FAILED");
+			tst_resm(TFAIL, "Test block 2: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 2: PASSED");
+			tst_resm(TPASS, "Test block 2: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 2");
 
@@ -478,9 +483,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 3: FAILED");
+			tst_resm(TFAIL, "Test block 3: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 3: PASSED");
+			tst_resm(TPASS, "Test block 3: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 3");
 
@@ -528,9 +533,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 4 FAILED");
+			tst_resm(TFAIL, "Test block 4 FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 4 PASSED");
+			tst_resm(TPASS, "Test block 4 PASSED");
 		}
 		tst_resm(TINFO, "Exit block 4");
 
@@ -583,9 +588,9 @@ int main(int ac, char **av)
 		 */
 		unlock_file();
 		if (fail) {
-			tst_resm(TINFO, "Test block 5: FAILED");
+			tst_resm(TFAIL, "Test block 5: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 5: PASSED");
+			tst_resm(TPASS, "Test block 5: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 5");
 
@@ -635,9 +640,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 6: FAILED");
+			tst_resm(TFAIL, "Test block 6: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 6: PASSED");
+			tst_resm(TPASS, "Test block 6: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 6");
 
@@ -688,9 +693,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 7: FAILED");
+			tst_resm(TFAIL, "Test block 7: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 7: PASSED");
+			tst_resm(TPASS, "Test block 7: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 7");
 
@@ -742,9 +747,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 8: FAILED");
+			tst_resm(TFAIL, "Test block 8: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 8: PASSED");
+			tst_resm(TPASS, "Test block 8: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 8");
 
@@ -798,9 +803,9 @@ int main(int ac, char **av)
 		unlock_file();
 
 		if (fail) {
-			tst_resm(TINFO, "Test block 9: FAILED");
+			tst_resm(TFAIL, "Test block 9: FAILED");
 		} else {
-			tst_resm(TINFO, "Test block 9: PASSED");
+			tst_resm(TPASS, "Test block 9: PASSED");
 		}
 		tst_resm(TINFO, "Exit block 9");
 

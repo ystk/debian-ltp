@@ -24,6 +24,8 @@ top_srcdir		?= ../../../../..
 
 include $(top_srcdir)/include/mk/env_pre.mk
 
-INSTALL_TARGETS		:= rpc01
+INSTALL_TARGETS		:= rpc01 datafiles/*
+
+INSTALL_MODE = $(if $(findstring datafiles/,$@), 0644, 0755)
 
 include $(top_srcdir)/include/mk/generic_leaf_target.mk

@@ -49,10 +49,10 @@ PORT=3333
 RHOST=${RHOST:-`hostname`}
 OUTFILE=$TCtmp/mc_commo_out
 NUMLOOPS=${NUMLOOPS:-2}
-INTERFACE=${INTERFACE:-$("$LTPROOT/tools/gethost" `hostname` | grep addresses: | awk '{print $2}')}
+INTERFACE=${INTERFACE:-$($LTPTOOLS/gethost `hostname` | grep addresses: | awk '{print $2}')}
 
 this_file=${0##*/}
-trap "interrupt_test" 2
+trap "interrupt_test" INT
 
 do_setup() {
   mkdir -p $TCtmp
@@ -128,7 +128,7 @@ do_test ()
       do
          echo "Running on $HOST mc_send $GROUP_ADDR $HOST $PORT $TTL"
 
-         rsh -n -l root $HOST "$LTPROOT/testcases/bin$REMOTE_EXEC" $GROUP_ADDR \
+         rsh -n -l root $HOST "$LTPROOT/testcases/bin/$REMOTE_EXEC" $GROUP_ADDR \
 	 $HOST $PORT $TTL >/dev/null &
          sleep 10
 	rsh -n -l root $HOST "ps -ewf | grep mc_send | grep -v grep"
@@ -165,7 +165,7 @@ do_cleanup()
 
    # Kill all recv processes
    echo "Killing all recv processes!!"
-   kill -9 $SERVER_PID
+   kill -s KILL $SERVER_PID
 
    #PIDLIST=`ps -ef |grep "ping -f -s 4800" |awk '{print $2}'`
    #for PID in $PIDLIST

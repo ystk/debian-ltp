@@ -39,11 +39,7 @@ else
     LTPTMP=$TMPBASE
 fi
 
-if [ -z "$LTPBIN" -a -z "$LTPROOT" ]; then
-    LTPBIN=./bin
-else
-    LTPBIN=$LTPROOT/testcases/bin
-fi
+LTPBIN=$LTPTOOLS
 
 # set return code RC variable to 0, it will be set with a non-zero return code
 # in case of error. Set TFAILCNT to 0, increment if there occures a failure.
@@ -204,10 +200,11 @@ else
     fi
 fi
 
-tar xvf $LTPTMP/tar_tstf.tar > $LTPTMP/tar_tst.out 2>&1 || RC=$?
+rm $LTPTMP/tar_tstf[0-9]
+(cd $LTPTMP; tar xvf $LTPTMP/tar_tstf.tar > $LTPTMP/tar_tst.out 2>&1) || RC=$?
 
 if [ $? -eq 0 ]; then
-   if [ -d $LTPTMP -a -f $LTPTMP/tar_tstf1 -a -f $LTPTMP/tar_tstf2 -a -f $LTPTMP/tar_tstf3 ]; then
+   if [ -d $LTPTMP/$LTPTMP -a -f $LTPTMP/$LTPTMP/tar_tstf1 -a -f $LTPTMP/$LTPTMP/tar_tstf2 -a -f $LTPTMP/$LTPTMP/tar_tstf3 ]; then
        $LTPBIN/tst_resm TPASS "tar: xvf option extracted the archive file."
    else
        $LTPBIN/tst_res TFAIL $LTPTMP/tar_tst.out \
@@ -220,7 +217,7 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
-rm -f $LTPTMP/tar_tst*
+rm -f $LTPTMP/tar_tst* $LTPTMP/$LTPTMP/tar_tst*
 
 # Test #5
 # Test if tar command can extract a compressed tar file 'tar zxvf 
@@ -264,10 +261,10 @@ else
 	fi
 fi
 
-tar zxvf $LTPTMP/tar_tstf.tgz > $LTPTMP/tar_tst.out 2>&1 || RC=$?
+(cd $LTPTMP; tar zxvf $LTPTMP/tar_tstf.tgz > $LTPTMP/tar_tst.out 2>&1) || RC=$?
 
 if [ $? -eq 0 ]; then
-    if [ -d $LTPTMP -a -f $LTPTMP/tar_tstf1 -a -f $LTPTMP/tar_tstf2 -a -f $LTPTMP/tar_tstf3 ]; then
+    if [ -d $LTPTMP/$LTPTMP -a -f $LTPTMP/$LTPTMP/tar_tstf1 -a -f $LTPTMP/$LTPTMP/tar_tstf2 -a -f $LTPTMP/$LTPTMP/tar_tstf3 ]; then
 	$LTPBIN/tst_resm TPASS \
 	    "tar: zxvf option extracted the compressed archive file."
     else
@@ -281,6 +278,6 @@ else
     TFAILCNT=$(( $TFAILCNT+1 ))
 fi
 
-rm -f $LTPTMP/tar_tst*
+rm -f $LTPTMP/tar_tst* $LTPTMP/$LTPTMP/tar_tst*
 
 exit $TFAILCNT

@@ -443,7 +443,7 @@ static void term(int sig LTP_ATTRIBUTE_UNUSED)
 	}
 
 	tst_resm(TBROK, "Child process exiting.");
-	tst_exit();
+	cleanup();
 }
 
 static void cleanup(void)

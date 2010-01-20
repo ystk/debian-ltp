@@ -79,6 +79,7 @@ int main(int ac, char **av)
 	char *msg;			/* message returned from parse_opts */
 	int pid;
 	void do_child(void);
+	int status;
 
 	/* parse standard options */
 	if ((msg = parse_opts(ac, av, (option_t *)NULL, NULL)) != (char *)NULL){
@@ -105,20 +106,21 @@ int main(int ac, char **av)
 
 		do_child();
 
-		cleanup();
+		tst_exit();
 
 		/*NOTREACHED*/
 	} else {		/* parent */
 		/* wait for the child to return */
-		if (waitpid(pid, NULL, 0) == -1) {
+		if (waitpid(pid, &status, 0) == -1) {
 			tst_brkm(TBROK, cleanup, "waitpid failed");
 		}
 
-		/* if it exists, remove the shared memory resource */
-		rm_shm(shm_id_1);
+		if(WIFEXITED(status) && WEXITSTATUS(status)==0)
+			tst_resm(TPASS, "Child reported success");
+		else
+			tst_resm(TFAIL, "Child reported failure");
 
-		/* Remove the temporary directory */
-		tst_rmdir();
+		cleanup();
 	}
 	return 0;
 }
@@ -214,6 +216,12 @@ cleanup(void)
 	 * print errno log if that option was specified.
 	 */
 	TEST_CLEANUP;
+
+	/* if it exists, remove the shared memory resource */
+	rm_shm(shm_id_1);
+
+	/* Remove the temporary directory */
+	tst_rmdir();
 
 	/* exit with return code appropriate for results */
 	tst_exit();

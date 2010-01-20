@@ -462,7 +462,7 @@ void setup()
 	struct sigaction act;
 
 	if ((fd = open(devname, O_RDWR, 0777)) < 0) {
-		tst_brkm(TBROK, _exit, "Could not open %s in "
+		tst_brkm(TBROK, tst_exit, "Could not open %s in "
 			 "setup(), errno = %d", devname, errno);
 	}
 

@@ -27,12 +27,11 @@
 #Uncomment line below for debugging
 #set -x
 
-TCbin=${TCbin:-`pwd`}
 TCtmp=${TCtmp:-/tmp/fsxtest2.$$}
 
 mkdir -p $TCtmp 2>/dev/null
 touch $TCtmp/testfile
-$TCbin/fsx-linux -N $1 $TCtmp/testfile
+fsx-linux -N $1 $TCtmp/testfile
 RESULT=$?
 # report the results
 if [ $RESULT -eq "0" ]; then

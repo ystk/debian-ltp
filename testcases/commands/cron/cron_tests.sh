@@ -50,12 +50,7 @@ else
     LTPTMP=$TMPBASE
 fi
 
-if [ -z "$LTPBIN" -a -z "$LTPROOT" ]
-then
-    LTPBIN=./
-else
-    LTPBIN=$LTPROOT/testcases/bin
-fi
+LTPBIN=$LTPTOOLS
 
 # Set return code RC variable to 0, it will be set with a non-zero return code
 # in case of error. Set TFAILCNT to 0, increment if there occures a failure.

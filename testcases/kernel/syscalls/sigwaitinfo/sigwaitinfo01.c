@@ -28,6 +28,7 @@
 #include "../utils/common_j_h.c"
 #include <limits.h>
 #include "linux_syscall_numbers.h"
+#include "ltp_signal.h"
 
 #define SUCCEED_OR_DIE(syscall, message, ...)														\
 	(errno = 0,																														\
@@ -113,8 +114,7 @@ static int my_sigtimedwait(const sigset_t* set, siginfo_t* info, struct timespec
 
 static int my_rt_sigtimedwait(const sigset_t* set, siginfo_t* info, struct timespec* timeout)
 {
-	/* The last argument is (number_of_signals)/(bits_per_byte), which are 64 and 8, resp. */
-	return syscall(__NR_rt_sigtimedwait, set, info, timeout, 8);
+	return syscall(__NR_rt_sigtimedwait, set, info, timeout, SIGSETSIZE);
 }
 
 void test_empty_set(swi_func sigwaitinfo, int signo)

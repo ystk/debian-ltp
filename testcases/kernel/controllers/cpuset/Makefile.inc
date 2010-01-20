@@ -37,8 +37,6 @@ $(LIBCONTROLLERS): $(LIBCONTROLLERS_DIR)
 $(LIBCPUSET): $(LIBCPUSET_DIR) | $(LIBCONTROLLERS)
 	$(MAKE) -C $^ -f "$(abs_srcdir)/$^/Makefile" all
 
-all: | $(LIBCPUSET_DIR)
-
 LDFLAGS			+= -L$(abs_builddir)/$(LIBCPUSET_DIR) -L$(abs_builddir)/$(LIBCONTROLLERS_DIR)
 
 LDLIBS			+= -lcpu_set -lcontrollers -lltp

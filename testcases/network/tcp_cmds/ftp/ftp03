@@ -35,6 +35,8 @@
 # FUNCTION:  do_setup
 #-----------------------------------------------------------------------
 
+PATH=$PATH:$LTPTOOLS
+
 do_setup()
 {
 	
@@ -48,7 +50,7 @@ do_setup()
 
     tst_setup
 
-    exists ftp useradd userdel vftpd
+    exists ftp useradd userdel vsftpd
 
     for vsftp_conf in /etc/vsftpd /etc; do
 

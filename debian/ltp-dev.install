@@ -1,0 +1,3 @@
+usr/include/ltp/*
+usr/lib/*.a
+../../lib/ltp.pc usr/share/pkgconfig
