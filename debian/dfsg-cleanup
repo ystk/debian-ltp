@@ -1,0 +1,19 @@
+#!/bin/sh
+
+DFSG_NONFREE=testcases/open_hpi_testsuite/docs/hld/ # Open Publication License
+DFSG_NONFREE=$DFSG_NONFREE\ testcases/kernel/syscalls/getitimer/getitimer03.c # This file is furnished under a license ???
+DFSG_NONFREE=$DFSG_NONFREE\ testcases/kernel/syscalls/getresgid/getresgid01.c 
+DFSG_NONFREE=$DFSG_NONFREE\ testcases/kernel/syscalls/nftw/Makefile
+DFSG_NONFREE=$DFSG_NONFREE\ testcases/kernel/syscalls/nftw/nftw64.h
+DFSG_NONFREE=$DFSG_NONFREE\ $(find -iname fsx-linux.c)                  # Apple Public Source License 
+
+# This is not dfsg-nonfree; I just didn't make copyright file for it,
+# and don't plan to package it in near future
+DFSG_NONFREE=$DFSG_NONFREE\ testcases/open_hpi_testsuite
+
+# This is pure abuse of this file; I don't wnat to ship configure
+# since I generate it with autotools. However, I need to filter out
+# only top-level configure, the ballista configure should stay there
+DFSG_NONFREE=$DFSG_NONFREE\ configure
+
+git rm -rf --ignore-unmatch $DFSG_NONFREE
